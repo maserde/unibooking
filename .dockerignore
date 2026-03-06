@@ -1,0 +1,19 @@
+# Exclude frontend — not needed for backend image
+apps/frontend
+
+# Exclude all node_modules — reinstalled inside Docker
+node_modules
+apps/*/node_modules
+
+# Exclude compiled output
+apps/*/dist
+
+# Exclude env files — injected at runtime
+.env
+apps/**/.env
+
+# Exclude dev/test artifacts
+**/*.log
+**/coverage
+**/.git
+**/.DS_Store

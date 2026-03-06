@@ -1,0 +1,27 @@
+# Local development override — run with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Exposes MySQL and Redis to the host so you can connect with DB clients.
+# Ports use non-standard values to avoid conflicts with local installations.
+services:
+  mysql:
+    ports:
+      - '${DEV_MYSQL_PORT:-3307}:3306'
+
+  redis:
+    ports:
+      - '${DEV_REDIS_PORT:-6380}:6379'
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: development
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - /app/apps/backend/node_modules
+    environment:
+      NODE_ENV: development
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    command: pnpm run dev

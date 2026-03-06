@@ -1,0 +1,13 @@
+node_modules/
+dist/
+
+# Environment files — never commit secrets
+.env
+.env.local
+apps/**/.env
+apps/**/.env.local
+
+# Build artifacts
+*.log
+coverage/
+.DS_Store

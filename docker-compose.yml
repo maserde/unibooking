@@ -1,0 +1,58 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootsecret}
+      MYSQL_DATABASE: ${DB_NAME:-unibooking}
+      MYSQL_USER: ${DB_USER:-unibooking}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+    # No host port binding in production — backend accesses via Docker network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u${DB_USER:-unibooking}', '-p${DB_PASSWORD:-secret}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redissecret}
+    # No host port binding in production
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-redissecret}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: production
+    ports:
+      - '9940:9940'
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: '9940'
+      # These override .env for container-internal networking
+      DB_HOST: mysql
+      DB_PORT: '3306'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
