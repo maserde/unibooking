@@ -50,6 +50,23 @@ export const bookingRepository = {
     return queryOne<Booking>('SELECT * FROM bookings WHERE id = ?', [id]);
   },
 
+  async findByIdPublicDetailed(id: string): Promise<Record<string, unknown> | null> {
+    const rows = await query<Record<string, unknown>>(
+      `SELECT b.*,
+        au.identifier as unit_identifier, au.status as unit_status,
+        a.name as asset_name, a.type as asset_type, a.price_unit,
+        p.id as payment_id, p.payment_link, p.amount as payment_amount, p.status as payment_status,
+        p.mayar_transaction_id
+       FROM bookings b
+       JOIN asset_units au ON au.id = b.asset_unit_id
+       JOIN assets a ON a.id = au.asset_id
+       LEFT JOIN payments p ON p.booking_id = b.id
+       WHERE b.id = ?`,
+      [id],
+    );
+    return rows[0] ?? null;
+  },
+
   async findAll(
     merchantId: string,
     options: { status?: BookingStatus; page: number; limit: number },

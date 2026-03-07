@@ -35,7 +35,7 @@ export const customerPortalController = {
   },
 
   async getBookingDetail(req: Request, res: Response): Promise<void> {
-    const booking = await bookingRepository.findByIdPublic(req.params.id);
+    const booking = await bookingRepository.findByIdPublicDetailed(req.params.id);
     if (!booking || booking.customer_id !== req.customerId) {
       throw new AppError('Booking not found', 404);
     }
