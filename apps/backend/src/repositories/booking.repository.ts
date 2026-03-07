@@ -84,7 +84,7 @@ export const bookingRepository = {
     const offset = (page - 1) * limit;
     const bookings = await query<Booking>(
       'SELECT * FROM bookings WHERE merchant_id = ? AND customer_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [merchantId, customerId, limit, offset],
+      [merchantId, customerId, Math.trunc(limit), Math.trunc(offset)],
     );
     const countRow = await queryOne<{ total: number }>(
       'SELECT COUNT(*) as total FROM bookings WHERE merchant_id = ? AND customer_id = ?',
