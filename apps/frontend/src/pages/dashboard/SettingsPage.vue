@@ -121,11 +121,10 @@
 <AppAlert v-if="webhookRetryError" type="error" :message="webhookRetryError" />
           <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook registered successfully" />
           <AppButton
-            v-if="webhookInfo?.has_api_key && webhookInfo?.webhook_status !== 'SUCCESS'"
             variant="secondary"
             :loading="webhookRetrying"
             @click="retryWebhook"
-          >Retry Registration</AppButton>
+          >Reconnect Webhook</AppButton>
         </div>
       </AppCard>
     </div>
