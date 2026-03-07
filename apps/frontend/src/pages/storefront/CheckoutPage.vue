@@ -2,12 +2,26 @@
   <div class="max-w-2xl mx-auto">
     <RouterLink :to="`/store/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Back to catalog</RouterLink>
 
-    <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-6">Book: {{ asset?.name }}</h2>
+    <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-4">Book: {{ asset?.name }}</h2>
 
     <!-- Step indicator -->
     <div class="flex items-center gap-2 mb-6">
       <div v-for="s in 3" :key="s" :class="['h-1.5 flex-1 rounded-full', step >= s ? 'bg-primary-600' : 'bg-gray-200']" />
     </div>
+
+    <!-- Asset image gallery -->
+    <div v-if="asset?.images?.length" class="flex gap-2 mb-6 rounded-xl overflow-hidden h-52">
+      <img
+          v-for="(img, i) in asset.images"
+          :key="img.id"
+          :src="img.url"
+          :alt="`${asset.name} photo ${i + 1}`"
+          class="flex-1 object-cover cursor-zoom-in hover:brightness-90 transition-[filter]"
+          @click="lightboxIndex = i"
+      />
+    </div>
+
+    <AppLightbox v-model="lightboxIndex" :images="lightboxImages" />
 
     <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
 
@@ -118,6 +132,7 @@
       </AppCard>
     </div>
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -131,6 +146,8 @@ import AppCard from '@/components/ui/AppCard.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppAlert from '@/components/ui/AppAlert.vue'
+import AppLightbox from '@/components/ui/AppLightbox.vue'
+import type { LightboxImage } from '@/components/ui/AppLightbox.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -138,6 +155,7 @@ const slug = route.params.slug as string
 const assetId = route.query.assetId as string
 
 const step = ref(1)
+const lightboxIndex = ref<number | null>(null)
 const catalog = ref<PublicCatalogResponse | null>(null)
 // Backend returns catalog array, not assets
 const asset = computed<PublicAsset | undefined>(() => catalog.value?.catalog.find((a) => a.id === assetId))
@@ -260,6 +278,10 @@ async function submitBooking() {
     submitting.value = false
   }
 }
+
+const lightboxImages = computed<LightboxImage[]>(() =>
+  asset.value?.images?.map((img) => ({ url: img.url, alt: asset.value?.name })) ?? [],
+)
 
 onMounted(async () => {
   try {
