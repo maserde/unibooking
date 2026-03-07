@@ -64,6 +64,41 @@
           <AppButton type="submit" :loading="paymentLoading">Update API key</AppButton>
         </form>
       </AppCard>
+
+      <AppCard title="Webhook Integration" class="mt-4">
+        <AppSpinner v-if="webhookLoading" size="sm" />
+        <div v-else class="space-y-3">
+          <div>
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Webhook URL</p>
+            <p class="text-sm font-mono bg-gray-50 border border-gray-200 rounded-md px-3 py-2 break-all select-all">
+              {{ webhookInfo?.webhook_url ?? '—' }}
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</p>
+            <span
+              v-if="webhookInfo?.webhook_status === 'SUCCESS'"
+              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
+            >Registered</span>
+            <span
+              v-else-if="webhookInfo?.webhook_status === 'FAILED'"
+              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"
+            >Failed</span>
+            <span
+              v-else
+              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600"
+            >Not registered</span>
+          </div>
+          <AppAlert v-if="webhookRetryError" type="error" :message="webhookRetryError" class="mt-2" />
+          <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook registered successfully" class="mt-2" />
+          <AppButton
+            v-if="webhookInfo?.has_api_key && webhookInfo?.webhook_status !== 'SUCCESS'"
+            variant="secondary"
+            :loading="webhookRetrying"
+            @click="retryWebhook"
+          >Retry Registration</AppButton>
+        </div>
+      </AppCard>
     </div>
 
     <!-- Staff Tab -->
@@ -117,6 +152,7 @@ import AppCard from '@/components/ui/AppCard.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppAlert from '@/components/ui/AppAlert.vue'
+import AppSpinner from '@/components/ui/AppSpinner.vue'
 import AppTable from '@/components/ui/AppTable.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
@@ -152,6 +188,12 @@ const passwords = reactive({ current: '', new: '', confirm: '' })
 const passwordLoading = ref(false)
 const passwordError = ref('')
 const passwordSuccess = ref(false)
+
+const webhookInfo = ref<{ webhook_url: string; webhook_status: 'SUCCESS' | 'FAILED' | null; has_api_key: boolean } | null>(null)
+const webhookLoading = ref(false)
+const webhookRetrying = ref(false)
+const webhookRetryError = ref('')
+const webhookRetrySuccess = ref(false)
 
 async function saveProfile() {
   profileLoading.value = true
@@ -191,6 +233,35 @@ async function savePassword() {
     passwordError.value = extractError(e)
   } finally {
     passwordLoading.value = false
+  }
+}
+
+async function fetchWebhookInfo() {
+  webhookLoading.value = true
+  try {
+    const res = await merchantApi.getWebhookInfo()
+    webhookInfo.value = res.data.data
+  } finally {
+    webhookLoading.value = false
+  }
+}
+
+async function retryWebhook() {
+  webhookRetryError.value = ''
+  webhookRetrySuccess.value = false
+  webhookRetrying.value = true
+  try {
+    const res = await merchantApi.retryWebhook()
+    webhookInfo.value = { ...webhookInfo.value!, webhook_status: res.data.data.webhook_status }
+    if (res.data.data.webhook_status === 'SUCCESS') {
+      webhookRetrySuccess.value = true
+    } else {
+      webhookRetryError.value = 'Registration failed. Check that your APP_URL is publicly reachable by Mayar.'
+    }
+  } catch (e) {
+    webhookRetryError.value = extractError(e)
+  } finally {
+    webhookRetrying.value = false
   }
 }
 
@@ -255,5 +326,8 @@ async function doRemoveStaff() {
   }
 }
 
-onMounted(fetchStaff)
+onMounted(() => {
+  fetchStaff()
+  fetchWebhookInfo()
+})
 </script>

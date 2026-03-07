@@ -12,4 +12,10 @@ export const merchantApi = {
     apiClient.put<ApiResponse<{ message: string }>>('/merchant/payment-setup', {
       api_key: data.mayar_api_key,
     }),
+
+  getWebhookInfo: () =>
+    apiClient.get<ApiResponse<{ webhook_url: string; webhook_status: 'SUCCESS' | 'FAILED' | null; has_api_key: boolean }>>('/merchant/webhook'),
+
+  retryWebhook: () =>
+    apiClient.post<ApiResponse<{ webhook_status: 'SUCCESS' | 'FAILED' }>>('/merchant/webhook/retry'),
 }

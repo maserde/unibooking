@@ -3,6 +3,8 @@ import { merchantRepository } from '../repositories/merchant.repository';
 import { merchantUserRepository } from '../repositories/merchantUser.repository';
 import { encryptionService } from './encryption.service';
 import { AppError } from '../middleware/error.middleware';
+import { env } from '../config/env';
+import { logger } from '../config/logger';
 import type { Merchant } from '../types/models';
 
 export const merchantService = {
@@ -28,6 +30,22 @@ export const merchantService = {
     return this.getProfile(merchantId);
   },
 
+  async registerWebhook(merchantId: string, apiKey: string): Promise<'SUCCESS' | 'FAILED'> {
+    let status: 'SUCCESS' | 'FAILED' = 'FAILED';
+    try {
+      await axios.get('https://api.mayar.id/hl/v1/webhook/register', {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        data: { urlHook: `${env.APP_URL}/api/webhooks/mayar` },
+        timeout: 10000,
+      });
+      status = 'SUCCESS';
+    } catch (err) {
+      logger.warn('Failed to register Mayar webhook', { merchantId, err });
+    }
+    await merchantRepository.setWebhookStatus(merchantId, status);
+    return status;
+  },
+
   async setupPayment(merchantId: string, apiKey: string): Promise<void> {
     // Validate key against Mayar API
     try {
@@ -44,6 +62,16 @@ export const merchantService = {
 
     const encrypted = encryptionService.encryptApiKey(apiKey);
     await merchantRepository.setMayarKey(merchantId, encrypted);
+    await this.registerWebhook(merchantId, apiKey);
+  },
+
+  async retryWebhookRegistration(merchantId: string): Promise<'SUCCESS' | 'FAILED'> {
+    const merchant = await merchantRepository.findById(merchantId);
+    if (!merchant) throw new AppError('Merchant not found', 404);
+    if (!merchant.mayar_api_key_encrypted) throw new AppError('No API key configured', 422);
+
+    const apiKey = encryptionService.decryptApiKey(merchant.mayar_api_key_encrypted);
+    return this.registerWebhook(merchantId, apiKey);
   },
 
   async getMerchantWithUsers(merchantId: string) {

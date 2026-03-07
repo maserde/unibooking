@@ -22,4 +22,20 @@ export const merchantController = {
     await merchantService.setupPayment(req.merchantId!, req.body.api_key);
     successResponse(res, null, 'Payment gateway configured successfully');
   },
+
+  async getWebhookInfo(req: Request, res: Response): Promise<void> {
+    const { merchantRepository } = await import('../repositories/merchant.repository');
+    const merchant = await merchantRepository.findById(req.merchantId!);
+    successResponse(res, {
+      webhook_url: `${env.APP_URL}/api/webhooks/mayar`,
+      webhook_status: merchant?.mayar_webhook_status ?? null,
+      has_api_key: !!merchant?.mayar_api_key_encrypted,
+    });
+  },
+
+  async retryWebhookRegister(req: Request, res: Response): Promise<void> {
+    const status = await merchantService.retryWebhookRegistration(req.merchantId!);
+    successResponse(res, { webhook_status: status },
+      status === 'SUCCESS' ? 'Webhook registered successfully' : 'Webhook registration failed');
+  },
 };

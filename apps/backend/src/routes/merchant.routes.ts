@@ -12,5 +12,7 @@ router.use(authMerchant);
 router.get('/profile', merchantController.getProfile);
 router.put('/profile', requireRole('OWNER', 'ADMIN'), validate(updateProfileSchema), merchantController.updateProfile);
 router.put('/payment-setup', requireRole('OWNER'), validate(paymentSetupSchema), merchantController.setupPayment);
+router.get('/webhook', merchantController.getWebhookInfo);
+router.post('/webhook/retry', requireRole('OWNER'), merchantController.retryWebhookRegister);
 
 export default router;

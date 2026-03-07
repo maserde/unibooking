@@ -7,6 +7,7 @@ export interface Merchant {
   phone?: string | null;
   address?: string | null;
   mayar_api_key_encrypted?: string | null;
+  mayar_webhook_status?: 'SUCCESS' | 'FAILED' | null;
   upfront_fee_percentage: number;
   created_at: Date;
   updated_at: Date;
