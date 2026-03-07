@@ -29,6 +29,7 @@ export const publicController = {
         slug: merchant.slug,
         phone: merchant.phone,
         address: merchant.address,
+        upfront_fee_percentage: merchant.upfront_fee_percentage,
       },
       catalog,
     });

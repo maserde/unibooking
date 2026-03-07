@@ -151,8 +151,6 @@ const customerErrors = reactive({ name: '', email: '' })
 // Price calculation
 const priceUnit = computed<PriceUnit>(() => asset.value?.price_unit ?? 'HOUR')
 const basePrice = computed(() => asset.value?.base_price ?? 0)
-// Merchant upfront_fee_percentage — public catalog endpoint returns merchant without this field
-// Fall back to 30% default if not available
 const upfrontPct = computed(() => catalog.value?.merchant.upfront_fee_percentage ?? 30)
 
 const durationNum = computed(() => {
