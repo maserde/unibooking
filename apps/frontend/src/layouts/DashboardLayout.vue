@@ -9,7 +9,7 @@
     >
       <!-- Logo -->
       <div class="flex items-center px-6 py-5 border-b border-gray-200">
-        <span class="text-lg font-bold text-primary-600">Unibooking</span>
+        <span class="text-lg font-bold text-primary-600">BookingAja</span>
       </div>
 
       <!-- Nav -->
@@ -62,7 +62,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <span class="font-semibold text-primary-600">Unibooking</span>
+        <span class="font-semibold text-primary-600">BookingAja</span>
       </div>
 
       <main class="flex-1 overflow-y-auto p-6">

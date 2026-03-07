@@ -27,7 +27,7 @@ export const notificationService = {
     const link = `${env.FRONTEND_URL}/verify-email?token=${token}`;
     await sendMail(
       email,
-      'Verify your Unibooking account',
+      'Verify your BookingAja account',
       `<p>Hi ${name},</p>
        <p>Please verify your email by clicking the link below:</p>
        <p><a href="${link}">${link}</a></p>
@@ -39,7 +39,7 @@ export const notificationService = {
     const link = `${env.FRONTEND_URL}/customer/${merchantSlug}/verify/${token}`;
     await sendMail(
       email,
-      'Your Unibooking login link',
+      'Your BookingAja login link',
       `<p>Click the link below to access your booking history. This link expires in 15 minutes.</p>
        <p><a href="${link}">${link}</a></p>`,
     );
@@ -133,9 +133,9 @@ export const notificationService = {
     const loginUrl = `${env.FRONTEND_URL}/login`;
     await sendMail(
       email,
-      `You've been invited to ${merchantName} on Unibooking`,
+      `You've been invited to ${merchantName} on BookingAja`,
       `<p>Hi ${fullName},</p>
-       <p>You've been added as a staff member for <strong>${merchantName}</strong> on Unibooking.</p>
+       <p>You've been added as a staff member for <strong>${merchantName}</strong> on BookingAja.</p>
        <p><strong>Email:</strong> ${email}</p>
        <p><strong>Temporary password:</strong> ${tempPassword}</p>
        <p><a href="${loginUrl}">Log in to your account →</a></p>
