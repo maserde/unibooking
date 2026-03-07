@@ -27,6 +27,32 @@
         <AppAlert v-if="profileError" type="error" :message="profileError" class="mb-4" />
         <AppAlert v-if="profileSuccess" type="success" message="Profile updated successfully" class="mb-4" />
         <form class="space-y-4" @submit.prevent="saveProfile">
+          <!-- Logo upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
+            <div class="flex items-center gap-4">
+              <div class="w-20 h-20 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img
+                  v-if="authStore.merchant?.logo_url"
+                  :src="authStore.merchant.logo_url"
+                  :alt="authStore.merchant.name"
+                  class="w-full h-full object-contain"
+                />
+                <svg v-else class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <AppButton variant="secondary" size="sm" type="button" :loading="logoLoading" @click="logoInput?.click()">
+                  {{ authStore.merchant?.logo_url ? 'Change logo' : 'Upload logo' }}
+                </AppButton>
+                <p class="text-xs text-gray-500 mt-1">PNG, JPG or WebP · max 5 MB</p>
+              </div>
+            </div>
+            <AppAlert v-if="logoError" type="error" :message="logoError" class="mt-2" />
+            <input ref="logoInput" type="file" accept="image/*" class="hidden" @change="onLogoSelect" />
+          </div>
+
           <AppInput v-model="profile.name" label="Business name" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Storefront URL</label>
@@ -150,6 +176,7 @@ import { staffApi } from '@/api/staff'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useApiError } from '@/composables/useApiError'
+import { useToast } from '@/composables/useToast'
 import type { MerchantUser } from '@/types/models'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppInput from '@/components/ui/AppInput.vue'
@@ -165,6 +192,7 @@ interface StaffRow extends MerchantUser { [key: string]: unknown }
 
 const authStore = useAuthStore()
 const { extractError } = useApiError()
+const toast = useToast()
 const activeTab = ref<'profile' | 'payment' | 'staff'>('profile')
 
 const tabs = [
@@ -172,6 +200,28 @@ const tabs = [
   { key: 'payment' as const, label: 'Payment' },
   { key: 'staff' as const, label: 'Staff' },
 ]
+
+// Logo
+const logoLoading = ref(false)
+const logoError = ref('')
+const logoInput = ref<HTMLInputElement | null>(null)
+
+async function onLogoSelect(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  ;(e.target as HTMLInputElement).value = ''
+  logoLoading.value = true
+  logoError.value = ''
+  try {
+    const res = await merchantApi.uploadLogo(file)
+    authStore.setMerchant(res.data.data)
+    toast.success('Logo updated')
+  } catch (e) {
+    logoError.value = extractError(e)
+  } finally {
+    logoLoading.value = false
+  }
+}
 
 // Profile
 const profile = reactive({

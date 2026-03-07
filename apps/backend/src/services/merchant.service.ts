@@ -2,6 +2,7 @@ import axios from 'axios';
 import { merchantRepository } from '../repositories/merchant.repository';
 import { merchantUserRepository } from '../repositories/merchantUser.repository';
 import { encryptionService } from './encryption.service';
+import { storageService } from './storage.service';
 import { AppError } from '../middleware/error.middleware';
 import { env, MAYAR_BASE_URL } from '../config/env';
 import { logger } from '../config/logger';
@@ -86,6 +87,12 @@ export const merchantService = {
 
     const apiKey = encryptionService.decryptApiKey(merchant.mayar_api_key_encrypted);
     return this.registerWebhook(merchantId, apiKey);
+  },
+
+  async uploadLogo(merchantId: string, buffer: Buffer): Promise<Merchant> {
+    const { url } = await storageService.uploadLogo(merchantId, buffer);
+    await merchantRepository.setLogoUrl(merchantId, url);
+    return this.getProfile(merchantId);
   },
 
   async getMerchantWithUsers(merchantId: string) {

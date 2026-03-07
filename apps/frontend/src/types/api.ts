@@ -91,7 +91,7 @@ export interface PublicAsset extends Asset {
 
 // Backend getCatalog returns { merchant, catalog } (key is 'catalog', not 'assets')
 export interface PublicCatalogResponse {
-  merchant: Pick<Merchant, 'id' | 'name' | 'slug' | 'phone' | 'address'> & { upfront_fee_percentage?: number }
+  merchant: Pick<Merchant, 'id' | 'name' | 'slug' | 'phone' | 'address'> & { upfront_fee_percentage?: number; logo_url?: string | null }
   catalog: PublicAsset[]
 }
 

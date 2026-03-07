@@ -54,4 +54,7 @@ export const merchantRepository = {
     await execute('UPDATE merchants SET mayar_webhook_status = ? WHERE id = ?', [status, id]);
   },
 
+  async setLogoUrl(id: string, url: string): Promise<void> {
+    await execute('UPDATE merchants SET logo_url = ? WHERE id = ?', [url, id]);
+  },
 };

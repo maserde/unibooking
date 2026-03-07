@@ -140,6 +140,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { publicApi } from '@/api/public'
 import { formatCurrency, formatDateTime } from '@/utils/format'
+import { useStorefrontStore } from '@/stores/storefront'
 import type { PublicCatalogResponse, PublicAsset, PromoValidateResponse } from '@/types/api'
 import type { PriceUnit } from '@/types/enums'
 import AppCard from '@/components/ui/AppCard.vue'
@@ -151,6 +152,7 @@ import type { LightboxImage } from '@/components/ui/AppLightbox.vue'
 
 const route = useRoute()
 const router = useRouter()
+const storefrontStore = useStorefrontStore()
 const slug = route.params.slug as string
 const assetId = route.query.assetId as string
 
@@ -287,6 +289,7 @@ onMounted(async () => {
   try {
     const res = await publicApi.catalog(slug)
     catalog.value = res.data.data
+    storefrontStore.setMerchant(res.data.data.merchant.name, res.data.data.merchant.logo_url)
   } catch {
     router.push(`/store/${slug}`)
   }

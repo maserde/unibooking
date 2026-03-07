@@ -13,6 +13,14 @@ export const merchantApi = {
       api_key: data.mayar_api_key,
     }),
 
+  uploadLogo: (file: File) => {
+    const fd = new FormData()
+    fd.append('logo', file)
+    return apiClient.post<ApiResponse<Merchant>>('/merchant/logo', fd, {
+      headers: { 'Content-Type': undefined },
+    })
+  },
+
   getWebhookInfo: () =>
     apiClient.get<ApiResponse<{ webhook_url: string; webhook_status: 'SUCCESS' | 'FAILED' | null; has_api_key: boolean }>>('/merchant/webhook'),
 

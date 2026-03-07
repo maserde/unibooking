@@ -81,6 +81,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { publicApi } from '@/api/public'
 import { formatCurrency } from '@/utils/format'
+import { useStorefrontStore } from '@/stores/storefront'
 import type { PublicCatalogResponse } from '@/types/api'
 import AppSpinner from '@/components/ui/AppSpinner.vue'
 import AppAlert from '@/components/ui/AppAlert.vue'
@@ -88,6 +89,7 @@ import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()
+const storefrontStore = useStorefrontStore()
 const loading = ref(true)
 const catalog = ref<PublicCatalogResponse | null>(null)
 const errorMsg = ref('')
@@ -110,6 +112,7 @@ onMounted(async () => {
   try {
     const res = await publicApi.catalog(route.params.slug as string)
     catalog.value = res.data.data
+    storefrontStore.setMerchant(res.data.data.merchant.name, res.data.data.merchant.logo_url)
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
     errorMsg.value = err.response?.data?.error ?? 'Failed to load catalog'

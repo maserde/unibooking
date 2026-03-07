@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { merchantService } from '../services/merchant.service';
 import { successResponse } from '../utils/apiResponse';
+import { AppError } from '../middleware/error.middleware';
 import { env } from '../config/env';
 
 function withStorefrontUrl<T extends { slug: string }>(merchant: T) {
@@ -16,6 +17,12 @@ export const merchantController = {
   async updateProfile(req: Request, res: Response): Promise<void> {
     const updated = await merchantService.updateProfile(req.merchantId!, req.body);
     successResponse(res, withStorefrontUrl(updated));
+  },
+
+  async uploadLogo(req: Request, res: Response): Promise<void> {
+    if (!req.file) throw new AppError('Logo file is required', 422);
+    const merchant = await merchantService.uploadLogo(req.merchantId!, req.file.buffer);
+    successResponse(res, withStorefrontUrl(merchant), 'Logo updated');
   },
 
   async setupPayment(req: Request, res: Response): Promise<void> {
