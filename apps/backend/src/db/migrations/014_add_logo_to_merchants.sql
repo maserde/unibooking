@@ -1,0 +1,1 @@
+ALTER TABLE merchants ADD COLUMN logo_url VARCHAR(1000) NULL;
