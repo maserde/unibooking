@@ -31,7 +31,8 @@ onMounted(async () => {
   try {
     await customerStore.verifyToken(route.params.token as string)
     success.value = true
-    setTimeout(() => router.push(`/customer/${slug}/bookings`), 1000)
+    const redirect = (route.query.redirect as string) || `/customer/${slug}/bookings`
+    setTimeout(() => router.push(redirect), 1000)
   } catch {
     // handled by success=false
   } finally {

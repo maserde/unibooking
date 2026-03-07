@@ -97,7 +97,9 @@ export const bookingService = {
       upfrontFee,
       `${asset.name} booking`,
       customer.email,
-      customer.phone_number
+      customer.phone_number,
+      customer.id,
+      merchant.slug,
     );
 
     // 10. Send booking confirmation email with magic link (24h TTL)
