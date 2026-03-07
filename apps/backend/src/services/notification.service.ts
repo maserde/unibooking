@@ -24,7 +24,7 @@ async function sendMail(to: string, subject: string, html: string): Promise<void
 
 export const notificationService = {
   async sendVerificationEmail(email: string, token: string, name: string): Promise<void> {
-    const link = `${env.APP_URL}/api/auth/verify-email?token=${token}`;
+    const link = `${env.FRONTEND_URL}/verify-email?token=${token}`;
     await sendMail(
       email,
       'Verify your Unibooking account',
