@@ -6,7 +6,7 @@
 
     <div v-else-if="catalog">
       <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-900">{{ catalog.merchant.name }}</h2>
+        <h2 class="text-xl font-semibold text-gray-900">Catalog</h2>
         <p v-if="catalog.merchant.address" class="text-sm text-gray-500 mt-1">{{ catalog.merchant.address }}</p>
       </div>
 
