@@ -125,7 +125,7 @@ export const bookingService = {
     merchantId: string,
     bookingId: string,
     status: BookingStatus,
-  ): Promise<Booking> {
+  ): Promise<Record<string, unknown>> {
     const booking = await bookingRepository.findById(merchantId, bookingId);
     if (!booking) throw new AppError('Booking not found', 404);
 
@@ -145,7 +145,7 @@ export const bookingService = {
     }
 
     await bookingRepository.updateStatus(merchantId, bookingId, status);
-    return (await bookingRepository.findById(merchantId, bookingId))!;
+    return (await bookingRepository.findDetailedById(merchantId, bookingId))!;
   },
 
   async checkAvailability(
