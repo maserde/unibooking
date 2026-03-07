@@ -11,14 +11,30 @@
 
     <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
 
-    <!-- Step 1: Time Selection -->
+    <!-- Step 1: Duration Selection -->
     <div v-if="step === 1" class="space-y-4">
-      <AppCard title="Select time">
-        <div class="grid grid-cols-2 gap-4">
-          <AppDateTimePicker v-model="booking.start_time" label="Start time" :error="timeErrors.start" />
-          <AppDateTimePicker v-model="booking.end_time" label="End time" :error="timeErrors.end" />
+      <AppCard title="Select duration">
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Start time</p>
+            <p class="text-sm font-medium text-gray-900">
+              {{ formatDateTime(booking.start_time) }}
+              <span class="text-xs text-gray-400">(now)</span>
+            </p>
+          </div>
+          <AppInput
+            v-model="durationInput"
+            :label="`Duration (${durationLabel})`"
+            type="number"
+            min="1"
+            :error="durationError"
+          />
+          <div v-if="durationNum > 0">
+            <p class="text-xs text-gray-500 mb-1">End time</p>
+            <p class="text-sm font-medium text-gray-900">{{ formatDateTime(endTime) }}</p>
+          </div>
         </div>
-        <AppButton class="mt-4 w-full" :loading="checkingAvailability" @click="checkAvailability">Check Availability</AppButton>
+        <AppButton class="mt-4 w-full" :loading="checkingAvailability" :disabled="checkAvailabilityDisabled" @click="checkAvailability">Check Availability</AppButton>
       </AppCard>
 
       <AppCard v-if="availabilityChecked" title="Price preview">
@@ -89,7 +105,7 @@
         <dl class="space-y-2 text-sm">
           <div class="flex justify-between"><dt class="text-gray-500">Asset</dt><dd>{{ asset?.name }}</dd></div>
           <div class="flex justify-between"><dt class="text-gray-500">Start</dt><dd>{{ formatDateTime(booking.start_time) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500">End</dt><dd>{{ formatDateTime(booking.end_time) }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">End</dt><dd>{{ formatDateTime(endTime) }}</dd></div>
           <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd>{{ customer.name }}</dd></div>
           <div class="flex justify-between"><dt class="text-gray-500">Email</dt><dd>{{ customer.email }}</dd></div>
           <div class="flex justify-between font-semibold border-t pt-2"><dt>Total</dt><dd>{{ formatCurrency(total) }}</dd></div>
@@ -105,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { publicApi } from '@/api/public'
 import { formatCurrency, formatDateTime } from '@/utils/format'
@@ -115,7 +131,6 @@ import AppCard from '@/components/ui/AppCard.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppAlert from '@/components/ui/AppAlert.vue'
-import AppDateTimePicker from '@/components/ui/AppDateTimePicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -127,22 +142,11 @@ const catalog = ref<PublicCatalogResponse | null>(null)
 // Backend returns catalog array, not assets
 const asset = computed<PublicAsset | undefined>(() => catalog.value?.catalog.find((a) => a.id === assetId))
 
-const booking = reactive({ start_time: '', end_time: '' })
-const timeErrors = reactive({ start: '', end: '' })
+const booking = reactive({ start_time: new Date().toISOString() })
+const durationInput = ref('1')
+const durationError = ref('')
 const customer = reactive({ name: '', email: '', phone: '' })
 const customerErrors = reactive({ name: '', email: '' })
-
-const checkingAvailability = ref(false)
-const availabilityChecked = ref(false)
-const isAvailable = ref(false)
-const errorMsg = ref('')
-
-const promoCode = ref('')
-const validatingPromo = ref(false)
-const promoError = ref('')
-const promoResult = ref<PromoValidateResponse | null>(null)
-
-const submitting = ref(false)
 
 // Price calculation
 const priceUnit = computed<PriceUnit>(() => asset.value?.price_unit ?? 'HOUR')
@@ -151,13 +155,37 @@ const basePrice = computed(() => asset.value?.base_price ?? 0)
 // Fall back to 30% default if not available
 const upfrontPct = computed(() => catalog.value?.merchant.upfront_fee_percentage ?? 30)
 
-const units = computed(() => {
-  if (!booking.start_time || !booking.end_time) return 0
-  const diff = new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()
-  if (diff <= 0) return 0
-  const unitMs = priceUnit.value === 'HOUR' ? 3600000 : 86400000
-  return Math.ceil(diff / unitMs)
+const durationNum = computed(() => {
+  const n = parseInt(durationInput.value, 10)
+  return isNaN(n) || n <= 0 ? 0 : n
 })
+const durationLabel = computed(() => priceUnit.value === 'HOUR' ? 'hours' : 'days')
+const endTime = computed(() => {
+  if (!booking.start_time || durationNum.value <= 0) return ''
+  const unitMs = priceUnit.value === 'HOUR' ? 3600000 : 86400000
+  return new Date(new Date(booking.start_time).getTime() + durationNum.value * unitMs).toISOString()
+})
+const units = computed(() => durationNum.value)
+
+const checkedDuration = ref<number | null>(null)
+const checkAvailabilityDisabled = computed(() => durationNum.value > 0 && durationNum.value === checkedDuration.value)
+
+const checkingAvailability = ref(false)
+const availabilityChecked = ref(false)
+const isAvailable = ref(false)
+const errorMsg = ref('')
+
+watch(durationNum, () => {
+  availabilityChecked.value = false
+  isAvailable.value = false
+})
+
+const promoCode = ref('')
+const validatingPromo = ref(false)
+const promoError = ref('')
+const promoResult = ref<PromoValidateResponse | null>(null)
+
+const submitting = ref(false)
 
 const subtotal = computed(() => units.value * basePrice.value)
 const discountAmount = computed(() => promoResult.value?.discount_amount ?? 0)
@@ -165,23 +193,19 @@ const total = computed(() => Math.max(0, subtotal.value - discountAmount.value))
 const upfrontFee = computed(() => Math.ceil((total.value * upfrontPct.value) / 100))
 
 async function checkAvailability() {
-  timeErrors.start = ''
-  timeErrors.end = ''
-  if (!booking.start_time) { timeErrors.start = 'Required'; return }
-  if (!booking.end_time) { timeErrors.end = 'Required'; return }
-  if (new Date(booking.end_time) <= new Date(booking.start_time)) {
-    timeErrors.end = 'End must be after start'; return
-  }
+  durationError.value = ''
+  if (durationNum.value <= 0) { durationError.value = 'Enter a valid duration'; return }
 
   checkingAvailability.value = true
   errorMsg.value = ''
   try {
     const res = await publicApi.availability(slug, assetId, {
-      start_time: new Date(booking.start_time).toISOString(),
-      end_time: new Date(booking.end_time).toISOString(),
+      start_time: booking.start_time,
+      end_time: endTime.value,
     })
     isAvailable.value = res.data.data.available
     availabilityChecked.value = true
+    checkedDuration.value = durationNum.value
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
     errorMsg.value = err.response?.data?.error ?? 'Failed to check availability'
@@ -221,8 +245,8 @@ async function submitBooking() {
   try {
     const res = await publicApi.createBooking(slug, {
       asset_id: assetId,
-      start_time: new Date(booking.start_time).toISOString(),
-      end_time: new Date(booking.end_time).toISOString(),
+      start_time: booking.start_time,
+      end_time: endTime.value,
       customer_name: customer.name,
       customer_email: customer.email,
       customer_phone: customer.phone || undefined,
