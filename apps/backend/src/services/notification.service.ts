@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
 import { logger } from '../config/logger';
+import { renderEmail } from '../utils/renderEmail';
 
 const transporter = nodemailer.createTransport({
   host: env.SMTP_HOST,
@@ -12,12 +13,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendMail(to: string, subject: string, html: string): Promise<void> {
+/**
+ * Renders the template and sends the email. All errors (rendering + SMTP)
+ * are caught here so that a failed email never breaks the calling service.
+ */
+async function sendMail(
+  to: string,
+  subject: string,
+  template: string,
+  vars: Record<string, string>,
+): Promise<void> {
   try {
+    const html = renderEmail(template, vars);
     await transporter.sendMail({ from: env.SMTP_FROM, to, subject, html });
     logger.info('Email sent', { to, subject });
   } catch (err) {
-    logger.error('Failed to send email', { to, subject, err });
+    logger.error('Failed to send email', { to, subject, template, err });
     // Non-blocking: don't throw, just log
   }
 }
@@ -25,24 +36,12 @@ async function sendMail(to: string, subject: string, html: string): Promise<void
 export const notificationService = {
   async sendVerificationEmail(email: string, token: string, name: string): Promise<void> {
     const link = `${env.FRONTEND_URL}/verify-email?token=${token}`;
-    await sendMail(
-      email,
-      'Verify your BookingAja account',
-      `<p>Hi ${name},</p>
-       <p>Please verify your email by clicking the link below:</p>
-       <p><a href="${link}">${link}</a></p>
-       <p>This link is valid for 24 hours.</p>`,
-    );
+    await sendMail(email, 'Verify your BookingAja account', 'verify-email', { name, link });
   },
 
   async sendMagicLink(email: string, token: string, merchantSlug: string): Promise<void> {
     const link = `${env.FRONTEND_URL}/customer/${merchantSlug}/verify/${token}`;
-    await sendMail(
-      email,
-      'Your BookingAja login link',
-      `<p>Click the link below to access your booking history. This link expires in 15 minutes.</p>
-       <p><a href="${link}">${link}</a></p>`,
-    );
+    await sendMail(email, 'Your BookingAja login link', 'magic-link', { link });
   },
 
   async sendBookingCreated(
@@ -63,23 +62,18 @@ export const notificationService = {
   ): Promise<void> {
     const portalUrl = `${env.FRONTEND_URL}/customer/${details.merchantSlug}`;
     const magicLink = `${env.FRONTEND_URL}/customer/${details.merchantSlug}/verify/${details.magicLinkToken}`;
-    await sendMail(
-      email,
-      `Booking Received – ${details.merchantName}`,
-      `<p>Hi ${details.customerName},</p>
-       <p>Your booking has been received. Here are the details:</p>
-       <p><strong>Item:</strong> ${details.assetName}</p>
-       <p><strong>From:</strong> ${details.startTime.toLocaleString()}</p>
-       <p><strong>To:</strong> ${details.endTime.toLocaleString()}</p>
-       <p><strong>Total:</strong> Rp ${details.totalPrice.toLocaleString()}</p>
-       <p><strong>Upfront payment:</strong> Rp ${details.upfrontFee.toLocaleString()}</p>
-       ${details.paymentLink ? `<p><a href="${details.paymentLink}">Complete your payment →</a></p>` : ''}
-       <hr/>
-       <p><strong>Access your booking portal</strong></p>
-       <p>Use the link below to view and manage your bookings. This link expires in 24 hours:</p>
-       <p><a href="${magicLink}">${magicLink}</a></p>
-       <p>Or log in anytime at: <a href="${portalUrl}">${portalUrl}</a></p>`,
-    );
+    await sendMail(email, `Booking Received – ${details.merchantName}`, 'booking-created', {
+      customerName: details.customerName,
+      merchantName: details.merchantName,
+      assetName: details.assetName,
+      startTime: details.startTime.toLocaleString('id-ID'),
+      endTime: details.endTime.toLocaleString('id-ID'),
+      totalPrice: `Rp ${details.totalPrice.toLocaleString('id-ID')}`,
+      upfrontFee: `Rp ${details.upfrontFee.toLocaleString('id-ID')}`,
+      paymentLink: details.paymentLink ?? '',
+      magicLink,
+      portalUrl,
+    });
   },
 
   async sendBookingConfirmation(
@@ -95,18 +89,16 @@ export const notificationService = {
       merchantName: string;
     },
   ): Promise<void> {
-    await sendMail(
-      email,
-      `Booking Confirmed – ${bookingDetails.merchantName}`,
-      `<p>Hi ${bookingDetails.customerName},</p>
-       <p>Your booking has been confirmed!</p>
-       <p><strong>Item:</strong> ${bookingDetails.assetName}</p>
-       <p><strong>From:</strong> ${bookingDetails.startTime.toLocaleString()}</p>
-       <p><strong>To:</strong> ${bookingDetails.endTime.toLocaleString()}</p>
-       <p><strong>Total:</strong> Rp ${bookingDetails.totalPrice.toLocaleString()}</p>
-       <p><strong>Paid (upfront):</strong> Rp ${bookingDetails.upfrontFee.toLocaleString()}</p>
-       <p>Booking ID: ${bookingDetails.bookingId}</p>`,
-    );
+    await sendMail(email, `Booking Confirmed – ${bookingDetails.merchantName}`, 'booking-confirmed', {
+      customerName: bookingDetails.customerName,
+      merchantName: bookingDetails.merchantName,
+      assetName: bookingDetails.assetName,
+      startTime: bookingDetails.startTime.toLocaleString('id-ID'),
+      endTime: bookingDetails.endTime.toLocaleString('id-ID'),
+      totalPrice: `Rp ${bookingDetails.totalPrice.toLocaleString('id-ID')}`,
+      upfrontFee: `Rp ${bookingDetails.upfrontFee.toLocaleString('id-ID')}`,
+      bookingId: bookingDetails.bookingId,
+    });
   },
 
   async sendBookingStatusUpdate(
@@ -116,12 +108,12 @@ export const notificationService = {
     status: string,
     merchantName: string,
   ): Promise<void> {
-    await sendMail(
-      email,
-      `Booking Update – ${merchantName}`,
-      `<p>Hi ${customerName},</p>
-       <p>Your booking <strong>${bookingId}</strong> status has been updated to: <strong>${status}</strong>.</p>`,
-    );
+    await sendMail(email, `Booking Update – ${merchantName}`, 'booking-status-update', {
+      customerName,
+      bookingId,
+      status,
+      merchantName,
+    });
   },
 
   async sendStaffInvitation(
@@ -131,15 +123,12 @@ export const notificationService = {
     merchantName: string,
   ): Promise<void> {
     const loginUrl = `${env.FRONTEND_URL}/login`;
-    await sendMail(
+    await sendMail(email, `You've been invited to ${merchantName} on BookingAja`, 'staff-invitation', {
+      fullName,
+      merchantName,
       email,
-      `You've been invited to ${merchantName} on BookingAja`,
-      `<p>Hi ${fullName},</p>
-       <p>You've been added as a staff member for <strong>${merchantName}</strong> on BookingAja.</p>
-       <p><strong>Email:</strong> ${email}</p>
-       <p><strong>Temporary password:</strong> ${tempPassword}</p>
-       <p><a href="${loginUrl}">Log in to your account →</a></p>
-       <p>Please change your password after your first login.</p>`,
-    );
+      tempPassword,
+      loginUrl,
+    });
   },
 };
