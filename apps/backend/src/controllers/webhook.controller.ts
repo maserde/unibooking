@@ -1,47 +1,38 @@
 import type { Request, Response } from 'express';
-import crypto from 'crypto';
-import { env } from '../config/env';
 import { paymentRepository } from '../repositories/payment.repository';
 import { bookingRepository } from '../repositories/booking.repository';
 import { customerRepository } from '../repositories/customer.repository';
+import { merchantRepository } from '../repositories/merchant.repository';
 import { notificationService } from '../services/notification.service';
 import { logger } from '../config/logger';
-import { AppError } from '../middleware/error.middleware';
 
 export const webhookController = {
   async handleMayar(req: Request, res: Response): Promise<void> {
-    // Verify HMAC signature
-    const signature = req.headers['x-mayar-signature'] as string;
-    if (!signature) throw new AppError('Missing signature', 401);
-
-    const rawBody = req.body as Buffer;
-    const hmac = crypto
-      .createHmac('sha256', env.MAYAR_WEBHOOK_SECRET)
-      .update(rawBody)
-      .digest('hex');
-
-    const sigBuffer = Buffer.from(signature);
-    const hmacBuffer = Buffer.from(hmac);
-
-    if (sigBuffer.length !== hmacBuffer.length || !crypto.timingSafeEqual(sigBuffer, hmacBuffer)) {
-      throw new AppError('Invalid signature', 401);
+    // Mayar does not implement webhook signature verification.
+    // The endpoint is protected by obscurity of the URL and rate limiting.
+    let payload: { event: string; data: Record<string, unknown> };
+    try {
+      payload = JSON.parse((req.body as Buffer).toString('utf8'));
+    } catch {
+      res.status(400).json({ received: false });
+      return;
     }
 
-    const payload = JSON.parse(rawBody.toString('utf8'));
-    logger.info('Mayar webhook received', { event: payload.event, id: payload.data?.id });
-
     const { event, data } = payload;
+    logger.info('Mayar webhook received', { event, id: data?.id });
 
-    if (event === 'payment.paid') {
-      const mayarTransactionId = data?.id;
-      const mayarPaymentLink = data?.link;
+    // Mayar fires 'payment.received' when a customer completes payment
+    if (event === 'payment.received') {
+      const mayarTransactionId = data?.id as string | undefined;
 
-      // Find payment by transaction ID or payment link
-      let payment = await paymentRepository.findByMayarTransactionId(mayarTransactionId);
+      // 1. Find our payment record by Mayar transaction ID
+      let payment = mayarTransactionId
+        ? await paymentRepository.findByMayarTransactionId(mayarTransactionId)
+        : null;
 
-      if (!payment && mayarPaymentLink) {
-        // Fallback: try to find by booking_id from external reference
-        const bookingId = data?.description?.replace('Booking ', '');
+      // 2. Fallback: extract booking ID from the description set at creation ("Booking <id>")
+      if (!payment) {
+        const bookingId = (data?.description as string)?.replace('Booking ', '').trim();
         if (bookingId) {
           payment = await paymentRepository.findByBookingId(bookingId);
         }
@@ -53,28 +44,40 @@ export const webhookController = {
         return;
       }
 
-      await paymentRepository.updateStatus(payment.id, 'PAID', mayarTransactionId);
-
       const booking = await bookingRepository.findByIdPublic(payment.booking_id);
       if (!booking) {
         res.status(200).json({ received: true });
         return;
       }
 
+      // 3. Confirm data.status === true (payment actually succeeded)
+      if (data?.status !== true) {
+        logger.info('Webhook: payment.received but status not true, skipping', { mayarTransactionId });
+        res.status(200).json({ received: true });
+        return;
+      }
+
+      // 4. Mark payment as PAID and booking as CONFIRMED
+      await paymentRepository.updateStatus(payment.id, 'PAID', mayarTransactionId);
       await bookingRepository.updateStatus(booking.merchant_id, booking.id, 'CONFIRMED');
 
-      // Send confirmation email
-      const customer = await customerRepository.findById(booking.merchant_id, booking.customer_id);
+      // 5. Send confirmation email with real asset and merchant names
+      const [detailed, customer, merchant] = await Promise.all([
+        bookingRepository.findByIdPublicDetailed(booking.id),
+        customerRepository.findById(booking.merchant_id, booking.customer_id),
+        merchantRepository.findById(booking.merchant_id),
+      ]);
+
       if (customer) {
         await notificationService.sendBookingConfirmation(customer.email, {
           customerName: customer.name,
           bookingId: booking.id,
-          assetName: 'Your rental',
+          assetName: (detailed?.asset_name as string) ?? 'Your rental',
           startTime: booking.start_time,
           endTime: booking.end_time,
           totalPrice: booking.total_price,
           upfrontFee: booking.upfront_fee,
-          merchantName: '',
+          merchantName: merchant?.name ?? '',
         });
       }
     }

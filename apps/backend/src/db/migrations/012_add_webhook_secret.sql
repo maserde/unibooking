@@ -1,0 +1,2 @@
+-- No-op: Mayar does not implement webhook signature verification.
+-- The mayar_webhook_secret_encrypted column is not needed.

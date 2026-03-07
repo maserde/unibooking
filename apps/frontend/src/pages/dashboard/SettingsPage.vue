@@ -22,7 +22,7 @@
     </div>
 
     <!-- Profile Tab -->
-    <div v-if="activeTab === 'profile'" class="max-w-lg">
+    <div v-if="activeTab === 'profile'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <AppCard title="Business Profile">
         <AppAlert v-if="profileError" type="error" :message="profileError" class="mb-4" />
         <AppAlert v-if="profileSuccess" type="success" message="Profile updated successfully" class="mb-4" />
@@ -45,7 +45,7 @@
         </form>
       </AppCard>
 
-      <AppCard title="Change Password" class="mt-4">
+      <AppCard title="Change Password">
         <AppAlert v-if="passwordError" type="error" :message="passwordError" class="mb-4" />
         <AppAlert v-if="passwordSuccess" type="success" message="Password updated successfully" class="mb-4" />
         <form class="space-y-4" @submit.prevent="savePassword">
@@ -55,8 +55,11 @@
           <AppButton type="submit" :loading="passwordLoading">Update password</AppButton>
         </form>
       </AppCard>
+    </div>
 
-      <AppCard title="Payment Setup" class="mt-4">
+    <!-- Payment Tab -->
+    <div v-if="activeTab === 'payment'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <AppCard title="Payment Setup">
         <AppAlert v-if="paymentError" type="error" :message="paymentError" class="mb-4" />
         <AppAlert v-if="paymentSuccess" type="success" message="API key updated" class="mb-4" />
         <form class="space-y-4" @submit.prevent="savePayment">
@@ -65,7 +68,7 @@
         </form>
       </AppCard>
 
-      <AppCard title="Webhook Integration" class="mt-4">
+      <AppCard title="Webhook Integration">
         <AppSpinner v-if="webhookLoading" size="sm" />
         <div v-else class="space-y-3">
           <div>
@@ -89,8 +92,8 @@
               class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600"
             >Not registered</span>
           </div>
-          <AppAlert v-if="webhookRetryError" type="error" :message="webhookRetryError" class="mt-2" />
-          <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook registered successfully" class="mt-2" />
+<AppAlert v-if="webhookRetryError" type="error" :message="webhookRetryError" />
+          <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook registered successfully" />
           <AppButton
             v-if="webhookInfo?.has_api_key && webhookInfo?.webhook_status !== 'SUCCESS'"
             variant="secondary"
@@ -162,10 +165,11 @@ interface StaffRow extends MerchantUser { [key: string]: unknown }
 
 const authStore = useAuthStore()
 const { extractError } = useApiError()
-const activeTab = ref<'profile' | 'staff'>('profile')
+const activeTab = ref<'profile' | 'payment' | 'staff'>('profile')
 
 const tabs = [
   { key: 'profile' as const, label: 'Profile' },
+  { key: 'payment' as const, label: 'Payment' },
   { key: 'staff' as const, label: 'Staff' },
 ]
 

@@ -53,4 +53,5 @@ export const merchantRepository = {
   async setWebhookStatus(id: string, status: 'SUCCESS' | 'FAILED'): Promise<void> {
     await execute('UPDATE merchants SET mayar_webhook_status = ? WHERE id = ?', [status, id]);
   },
+
 };

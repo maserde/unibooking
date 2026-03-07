@@ -35,7 +35,6 @@ const envSchema = z.object({
   APP_URL: z.string().url(),
   FRONTEND_URL: z.string().url(),
 
-  MAYAR_WEBHOOK_SECRET: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);

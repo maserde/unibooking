@@ -18,4 +18,5 @@ export const merchantApi = {
 
   retryWebhook: () =>
     apiClient.post<ApiResponse<{ webhook_status: 'SUCCESS' | 'FAILED' }>>('/merchant/webhook/retry'),
+
 }
