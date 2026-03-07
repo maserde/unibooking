@@ -16,6 +16,7 @@ export interface Merchant {
   address?: string | null
   mayar_api_key_encrypted?: string | null
   upfront_fee_percentage: number
+  storefront_url?: string
   created_at: string
   updated_at: string
 }

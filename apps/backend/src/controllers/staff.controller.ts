@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 import { merchantUserRepository } from '../repositories/merchantUser.repository';
+import { merchantRepository } from '../repositories/merchant.repository';
 import { hashPassword } from '../utils/bcrypt';
-import { generateUuid } from '../utils/uuid';
 import { successResponse } from '../utils/apiResponse';
 import { AppError } from '../middleware/error.middleware';
+import { notificationService } from '../services/notification.service';
 import crypto from 'crypto';
 
 export const staffController = {
@@ -17,7 +18,8 @@ export const staffController = {
     const existing = await merchantUserRepository.findByEmail(req.body.email);
     if (existing) throw new AppError('Email already registered', 409);
 
-    const passwordHash = await hashPassword(req.body.password);
+    const tempPassword = crypto.randomBytes(10).toString('base64url');
+    const passwordHash = await hashPassword(tempPassword);
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
     const user = await merchantUserRepository.create({
@@ -27,7 +29,11 @@ export const staffController = {
       fullName: req.body.full_name,
       role: req.body.role,
       emailVerificationToken: verificationToken,
+      isEmailVerified: true,
     });
+
+    const merchant = await merchantRepository.findById(req.merchantId!);
+    await notificationService.sendStaffInvitation(req.body.email, req.body.full_name, tempPassword, merchant?.name ?? '');
 
     const { password_hash: _, email_verification_token: __, ...safe } = user;
     successResponse(res, safe, 'Staff member invited', 201);

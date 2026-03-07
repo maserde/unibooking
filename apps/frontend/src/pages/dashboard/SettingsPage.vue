@@ -30,9 +30,13 @@
           <AppInput v-model="profile.name" label="Business name" />
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Storefront URL</label>
-            <div class="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
-              /store/{{ authStore.merchant?.slug }}
-            </div>
+            <a
+              v-if="authStore.merchant?.storefront_url"
+              :href="authStore.merchant.storefront_url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-primary-600 hover:underline bg-gray-50 border border-gray-200 rounded-md px-3 py-2 block truncate"
+            >{{ authStore.merchant.storefront_url }}</a>
           </div>
           <AppInput v-model="profile.phone" label="Phone" type="tel" />
           <AppInput v-model="profile.address" label="Address" />

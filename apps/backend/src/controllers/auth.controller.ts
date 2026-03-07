@@ -3,6 +3,7 @@ import { authService } from '../services/auth.service';
 import { merchantUserRepository } from '../repositories/merchantUser.repository';
 import { merchantRepository } from '../repositories/merchant.repository';
 import { successResponse } from '../utils/apiResponse';
+import { env } from '../config/env';
 import { AppError } from '../middleware/error.middleware';
 
 export const authController = {
@@ -38,6 +39,9 @@ export const authController = {
     if (!user) throw new AppError('User not found', 404);
     const merchant = await merchantRepository.findById(user.merchant_id);
     const { password_hash: _, email_verification_token: __, ...safeUser } = user;
-    successResponse(res, { user: safeUser, merchant });
+    const merchantWithUrl = merchant
+      ? { ...merchant, storefront_url: `${env.FRONTEND_URL}/store/${merchant.slug}` }
+      : merchant;
+    successResponse(res, { user: safeUser, merchant: merchantWithUrl });
   },
 };

@@ -24,6 +24,18 @@
           {{ item.label }}
         </RouterLink>
 
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Store</p>
+        <a
+          v-if="authStore.merchant?.storefront_url"
+          :href="authStore.merchant.storefront_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          @click="sidebarOpen = false"
+        >
+          View Storefront ↗
+        </a>
+
         <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Account</p>
         <RouterLink v-for="item in accountNav" :key="item.to" :to="item.to" :class="navClass(item.to)" @click="sidebarOpen = false">
           {{ item.label }}

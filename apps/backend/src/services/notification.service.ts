@@ -123,4 +123,23 @@ export const notificationService = {
        <p>Your booking <strong>${bookingId}</strong> status has been updated to: <strong>${status}</strong>.</p>`,
     );
   },
+
+  async sendStaffInvitation(
+    email: string,
+    fullName: string,
+    tempPassword: string,
+    merchantName: string,
+  ): Promise<void> {
+    const loginUrl = `${env.FRONTEND_URL}/login`;
+    await sendMail(
+      email,
+      `You've been invited to ${merchantName} on Unibooking`,
+      `<p>Hi ${fullName},</p>
+       <p>You've been added as a staff member for <strong>${merchantName}</strong> on Unibooking.</p>
+       <p><strong>Email:</strong> ${email}</p>
+       <p><strong>Temporary password:</strong> ${tempPassword}</p>
+       <p><a href="${loginUrl}">Log in to your account →</a></p>
+       <p>Please change your password after your first login.</p>`,
+    );
+  },
 };

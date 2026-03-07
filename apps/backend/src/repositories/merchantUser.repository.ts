@@ -11,12 +11,13 @@ export const merchantUserRepository = {
     fullName: string;
     role: MerchantUserRole;
     emailVerificationToken: string;
+    isEmailVerified?: boolean;
   }): Promise<MerchantUser> {
     const id = generateUuid();
     await execute(
       `INSERT INTO merchant_users
         (id, merchant_id, email, password_hash, full_name, role, is_email_verified, email_verification_token)
-       VALUES (?, ?, ?, ?, ?, ?, FALSE, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         data.merchantId,
@@ -24,6 +25,7 @@ export const merchantUserRepository = {
         data.passwordHash,
         data.fullName,
         data.role,
+        data.isEmailVerified ?? false,
         data.emailVerificationToken,
       ],
     );
