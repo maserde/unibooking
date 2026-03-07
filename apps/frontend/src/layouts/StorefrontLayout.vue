@@ -5,7 +5,7 @@
         <div>
           <h1 class="text-lg font-semibold text-gray-900">{{ merchantName }}</h1>
         </div>
-        <RouterLink to="/" class="text-sm text-primary-600 hover:underline">Home</RouterLink>
+        <RouterLink :to="`/store/${slug}`" class="text-sm text-primary-600 hover:underline">Home</RouterLink>
       </div>
     </header>
     <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -15,5 +15,10 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
 defineProps<{ merchantName?: string }>()
+
+const route = useRoute()
+const slug = route.params.slug as string
 </script>
