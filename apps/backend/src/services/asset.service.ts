@@ -1,9 +1,12 @@
 import { assetRepository } from '../repositories/asset.repository';
+import { assetImageRepository } from '../repositories/assetImage.repository';
 import { assetUnitRepository } from '../repositories/assetUnit.repository';
 import { bookingRepository } from '../repositories/booking.repository';
+import { storageService } from './storage.service';
 import { AppError } from '../middleware/error.middleware';
-import type { Asset, AssetUnit } from '../types/models';
+import type { Asset, AssetImage, AssetUnit } from '../types/models';
 import type { AssetType, PriceUnit, AssetUnitStatus } from '../types/enums';
+import { generateUuid } from '../utils/uuid';
 
 export const assetService = {
   async listAssets(merchantId: string): Promise<Asset[]> {
@@ -74,5 +77,28 @@ export const assetService = {
     const belongs = await assetUnitRepository.belongsToMerchant(unitId, merchantId);
     if (!belongs) throw new AppError('Unit not found', 404);
     await assetUnitRepository.delete(unitId);
+  },
+
+  async uploadImage(merchantId: string, assetId: string, buffer: Buffer): Promise<AssetImage> {
+    const asset = await assetRepository.findById(merchantId, assetId);
+    if (!asset) throw new AppError('Asset not found', 404);
+
+    const count = await assetImageRepository.countByAssetId(assetId);
+    if (count >= 3) throw new AppError('Maximum 3 images per asset', 422);
+
+    const imageId = generateUuid();
+    const { s3Key, url } = await storageService.uploadImage(assetId, imageId, buffer);
+    return assetImageRepository.create(assetId, s3Key, url, count);
+  },
+
+  async deleteImage(merchantId: string, assetId: string, imageId: string): Promise<void> {
+    const asset = await assetRepository.findById(merchantId, assetId);
+    if (!asset) throw new AppError('Asset not found', 404);
+
+    const image = await assetImageRepository.findById(imageId);
+    if (!image || image.asset_id !== assetId) throw new AppError('Image not found', 404);
+
+    await storageService.deleteFile(image.s3_key);
+    await assetImageRepository.delete(imageId);
   },
 };

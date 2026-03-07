@@ -1,0 +1,10 @@
+CREATE TABLE asset_images (
+  id CHAR(36) NOT NULL,
+  asset_id CHAR(36) NOT NULL,
+  s3_key VARCHAR(500) NOT NULL,
+  url VARCHAR(1000) NOT NULL,
+  sort_order TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  CONSTRAINT fk_asset_image_asset FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

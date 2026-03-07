@@ -18,6 +18,43 @@
           + Add attribute
         </AppButton>
       </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Photos (up to 3)</label>
+        <div class="flex flex-wrap gap-3">
+          <!-- Existing images -->
+          <div v-for="img in existingImages" :key="img.id" class="relative w-24 h-24">
+            <img :src="img.url" class="w-full h-full object-cover rounded-lg border border-gray-200" />
+            <button
+              type="button"
+              class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600"
+              @click="removeExistingImage(img)"
+            >✕</button>
+          </div>
+          <!-- Pending preview images -->
+          <div v-for="(url, i) in previewUrls" :key="`pending-${i}`" class="relative w-24 h-24">
+            <img :src="url" class="w-full h-full object-cover rounded-lg border border-gray-200 border-dashed" />
+            <button
+              type="button"
+              class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-gray-600"
+              @click="removePendingFile(i)"
+            >✕</button>
+          </div>
+          <!-- Add photo button -->
+          <button
+            v-if="existingImages.length + pendingFiles.length < 3"
+            type="button"
+            class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-primary-400 hover:text-primary-500 transition-colors"
+            @click="imageInput?.click()"
+          >
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-xs">Add photo</span>
+          </button>
+        </div>
+        <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onFileSelect" />
+      </div>
     </form>
     <template #footer>
       <div class="flex justify-end gap-3">
@@ -33,7 +70,7 @@ import { ref, reactive, watch } from 'vue'
 import { assetsApi } from '@/api/assets'
 import { useApiError } from '@/composables/useApiError'
 import { useToast } from '@/composables/useToast'
-import type { Asset } from '@/types/models'
+import type { Asset, AssetImage } from '@/types/models'
 import type { AssetType, PriceUnit } from '@/types/enums'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppInput from '@/components/ui/AppInput.vue'
@@ -55,6 +92,11 @@ const attributes = ref<{ key: string; value: string }[]>([])
 const saving = ref(false)
 const error = ref('')
 
+const existingImages = ref<AssetImage[]>([])
+const pendingFiles = ref<File[]>([])
+const previewUrls = ref<string[]>([])
+const imageInput = ref<HTMLInputElement | null>(null)
+
 watch(
   () => props.modelValue,
   (open) => {
@@ -66,9 +108,41 @@ watch(
       const attrs = props.asset?.attributes as Record<string, string> | null
       attributes.value = attrs ? Object.entries(attrs).map(([key, value]) => ({ key, value })) : []
       error.value = ''
+      existingImages.value = props.asset?.images ?? []
+      previewUrls.value.forEach((url) => URL.revokeObjectURL(url))
+      previewUrls.value = []
+      pendingFiles.value = []
+    } else {
+      previewUrls.value.forEach((url) => URL.revokeObjectURL(url))
+      previewUrls.value = []
+      pendingFiles.value = []
     }
   },
 )
+
+function onFileSelect(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  pendingFiles.value.push(file)
+  previewUrls.value.push(URL.createObjectURL(file))
+  ;(e.target as HTMLInputElement).value = ''
+}
+
+async function removeExistingImage(img: AssetImage) {
+  if (!props.asset) return
+  try {
+    await assetsApi.deleteImage(props.asset.id, img.id)
+    existingImages.value = existingImages.value.filter((i) => i.id !== img.id)
+  } catch (e) {
+    error.value = extractError(e)
+  }
+}
+
+function removePendingFile(index: number) {
+  URL.revokeObjectURL(previewUrls.value[index])
+  previewUrls.value.splice(index, 1)
+  pendingFiles.value.splice(index, 1)
+}
 
 async function save() {
   errors.name = ''
@@ -81,6 +155,7 @@ async function save() {
   saving.value = true
   error.value = ''
   try {
+    let assetId: string
     if (props.asset) {
       await assetsApi.update(props.asset.id, {
         name: form.name,
@@ -88,17 +163,24 @@ async function save() {
         price_unit: form.price_unit,
         attributes: attrsObj,
       })
+      assetId = props.asset.id
       toast.success('Asset updated')
     } else {
-      await assetsApi.create({
+      const res = await assetsApi.create({
         type: form.type,
         name: form.name,
         base_price: Number(form.base_price),
         price_unit: form.price_unit,
         attributes: attrsObj,
       })
+      assetId = res.data.data.id
       toast.success('Asset created')
     }
+
+    for (const file of pendingFiles.value) {
+      await assetsApi.uploadImage(assetId, file)
+    }
+
     emit('saved')
   } catch (e) {
     error.value = extractError(e)

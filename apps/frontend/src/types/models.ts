@@ -43,6 +43,14 @@ export interface Customer {
   updated_at: string
 }
 
+export interface AssetImage {
+  id: string
+  asset_id: string
+  url: string
+  sort_order: number
+  created_at: string
+}
+
 export interface Asset {
   id: string
   merchant_id: string
@@ -51,6 +59,7 @@ export interface Asset {
   base_price: number
   price_unit: PriceUnit
   attributes: Record<string, unknown> | null
+  images: AssetImage[]
   created_at: string
   updated_at: string
 }

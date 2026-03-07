@@ -1,6 +1,6 @@
 import { apiClient } from './client'
 import type { ApiResponse } from '@/types/api'
-import type { Asset, AssetUnit } from '@/types/models'
+import type { Asset, AssetImage, AssetUnit } from '@/types/models'
 import type { AssetType, PriceUnit, AssetUnitStatus } from '@/types/enums'
 
 export const assetsApi = {
@@ -34,6 +34,17 @@ export const assetsApi = {
   // Backend route: DELETE /merchant/units/:id
   deleteUnit: (_assetId: string, unitId: string) =>
     apiClient.delete(`/merchant/units/${unitId}`),
+
+  uploadImage: (assetId: string, file: File) => {
+    const fd = new FormData()
+    fd.append('image', file)
+    return apiClient.post<ApiResponse<AssetImage>>(`/merchant/assets/${assetId}/images`, fd, {
+      headers: { 'Content-Type': undefined },
+    })
+  },
+
+  deleteImage: (assetId: string, imageId: string) =>
+    apiClient.delete(`/merchant/assets/${assetId}/images/${imageId}`),
 
   // Backend expects: { asset: { type, name, base_price, price_unit, attributes }, units: [...] }
   initialSetup: (data: {

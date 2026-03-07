@@ -2,6 +2,7 @@ import { query, queryOne, execute } from '../config/database';
 import type { Asset } from '../types/models';
 import type { AssetType, PriceUnit } from '../types/enums';
 import { generateUuid } from '../utils/uuid';
+import { assetImageRepository } from './assetImage.repository';
 
 export const assetRepository = {
   async create(
@@ -36,7 +37,9 @@ export const assetRepository = {
       [id, merchantId],
     );
     if (!row) return null;
-    return this.parseAsset(row);
+    const asset = this.parseAsset(row);
+    asset.images = await assetImageRepository.findByAssetId(asset.id);
+    return asset;
   },
 
   async findAll(merchantId: string): Promise<Asset[]> {
@@ -44,7 +47,13 @@ export const assetRepository = {
       'SELECT * FROM assets WHERE merchant_id = ? ORDER BY created_at DESC',
       [merchantId],
     );
-    return rows.map(this.parseAsset);
+    const assets = rows.map(this.parseAsset);
+    await Promise.all(
+      assets.map(async (asset) => {
+        asset.images = await assetImageRepository.findByAssetId(asset.id);
+      }),
+    );
+    return assets;
   },
 
   async findBySlug(merchantId: string): Promise<Asset[]> {
@@ -81,6 +90,7 @@ export const assetRepository = {
         row.attributes && typeof row.attributes === 'string'
           ? JSON.parse(row.attributes)
           : row.attributes,
+      images: [],
     };
   },
 };

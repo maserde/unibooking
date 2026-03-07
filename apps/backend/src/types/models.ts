@@ -45,6 +45,15 @@ export interface MagicLink {
   created_at: Date;
 }
 
+export interface AssetImage {
+  id: string;
+  asset_id: string;
+  s3_key: string;
+  url: string;
+  sort_order: number;
+  created_at: Date;
+}
+
 export interface Asset {
   id: string;
   merchant_id: string;
@@ -53,6 +62,7 @@ export interface Asset {
   base_price: number;
   price_unit: PriceUnit;
   attributes: Record<string, unknown> | null;
+  images: AssetImage[];
   created_at: Date;
   updated_at: Date;
 }

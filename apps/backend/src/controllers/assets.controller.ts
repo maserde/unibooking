@@ -46,6 +46,17 @@ export const assetsController = {
     successResponse(res, null, 'Unit deleted');
   },
 
+  async uploadImage(req: Request, res: Response): Promise<void> {
+    if (!req.file) throw new AppError('Image file is required', 422);
+    const image = await assetService.uploadImage(req.merchantId!, req.params.id, req.file.buffer);
+    successResponse(res, image, 'Image uploaded', 201);
+  },
+
+  async deleteImage(req: Request, res: Response): Promise<void> {
+    await assetService.deleteImage(req.merchantId!, req.params.id, req.params.imageId);
+    successResponse(res, null, 'Image deleted');
+  },
+
   async initialCatalogSetup(req: Request, res: Response): Promise<void> {
     const { asset: assetData, units } = req.body;
     const asset = await assetService.createAsset(req.merchantId!, assetData);
