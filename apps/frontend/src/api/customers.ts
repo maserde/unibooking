@@ -4,7 +4,7 @@ import type { Customer, Booking } from '@/types/models'
 
 export const customersApi = {
   // Returns { customers: Customer[], total: number }
-  list: (params?: { page?: number; limit?: number }) =>
+  list: (params?: { page?: number; limit?: number; search?: string }) =>
     apiClient.get<ApiResponse<{ customers: Customer[]; total: number }>>('/merchant/customers', { params }),
 
   // Returns { customer: Customer, bookings: { bookings: Booking[], total: number } }

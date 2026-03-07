@@ -8,7 +8,8 @@ export const customersController = {
   async list(req: Request, res: Response): Promise<void> {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 20;
-    const result = await customerRepository.findAll(req.merchantId!, page, limit);
+    const search = req.query.search as string | undefined;
+    const result = await customerRepository.findAll(req.merchantId!, page, limit, search);
     successResponse(res, result);
   },
 

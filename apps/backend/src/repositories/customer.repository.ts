@@ -36,15 +36,26 @@ export const customerRepository = {
     merchantId: string,
     page: number,
     limit: number,
+    search?: string,
   ): Promise<{ customers: Customer[]; total: number }> {
     const offset = (page - 1) * limit;
+    const conditions = ['merchant_id = ?'];
+    const params: unknown[] = [merchantId];
+
+    if (search) {
+      conditions.push('(name LIKE ? OR email LIKE ? OR phone_number LIKE ?)');
+      const like = `%${search}%`;
+      params.push(like, like, like);
+    }
+
+    const where = conditions.join(' AND ');
     const customers = await query<Customer>(
-      'SELECT * FROM customers WHERE merchant_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [merchantId, limit, offset],
+      `SELECT * FROM customers WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      [...params, limit, offset],
     );
     const countRow = await queryOne<{ total: number }>(
-      'SELECT COUNT(*) as total FROM customers WHERE merchant_id = ?',
-      [merchantId],
+      `SELECT COUNT(*) as total FROM customers WHERE ${where}`,
+      params,
     );
     return { customers, total: countRow?.total ?? 0 };
   },
