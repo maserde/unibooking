@@ -1,6 +1,3 @@
-# Exclude frontend — not needed for backend image
-apps/frontend
-
 # Exclude all node_modules — reinstalled inside Docker
 node_modules
 apps/*/node_modules

@@ -25,3 +25,19 @@ services:
       DB_HOST: mysql
       REDIS_HOST: redis
     command: pnpm run dev
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: development
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - /app/apps/frontend/node_modules
+    environment:
+      VITE_PROXY_TARGET: http://backend:9940
+    depends_on:
+      - backend
+    command: pnpm run dev -- --host

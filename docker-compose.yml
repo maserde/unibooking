@@ -53,6 +53,17 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: production
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   mysql_data:
   redis_data:
