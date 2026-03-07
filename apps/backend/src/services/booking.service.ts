@@ -4,6 +4,8 @@ import { assetRepository } from '../repositories/asset.repository';
 import { bookingRepository } from '../repositories/booking.repository';
 import { promoService } from './promo.service';
 import { paymentService } from './payment.service';
+import { magicLinkService } from './magicLink.service';
+import { notificationService } from './notification.service';
 import { calculateTotalPrice } from '../utils/dateHelpers';
 import { AppError } from '../middleware/error.middleware';
 import type { Booking, Payment } from '../types/models';
@@ -97,6 +99,22 @@ export const bookingService = {
       customer.email,
       customer.phone_number
     );
+
+    // 10. Send booking confirmation email with magic link (24h TTL)
+    const magicLinkToken = await magicLinkService.generateTokenForCustomer(customer.id, 24 * 60);
+    await notificationService.sendBookingCreated(customer.email, {
+      customerName: customer.name,
+      bookingId: booking.id,
+      assetName: asset.name,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      totalPrice,
+      upfrontFee,
+      paymentLink: payment.payment_link ?? null,
+      merchantName: merchant.name,
+      merchantSlug: input.slug,
+      magicLinkToken,
+    });
 
     return { booking, payment };
   },

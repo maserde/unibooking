@@ -45,6 +45,43 @@ export const notificationService = {
     );
   },
 
+  async sendBookingCreated(
+    email: string,
+    details: {
+      customerName: string;
+      bookingId: string;
+      assetName: string;
+      startTime: Date;
+      endTime: Date;
+      totalPrice: number;
+      upfrontFee: number;
+      paymentLink: string | null;
+      merchantName: string;
+      merchantSlug: string;
+      magicLinkToken: string;
+    },
+  ): Promise<void> {
+    const portalUrl = `${env.FRONTEND_URL}/customer/${details.merchantSlug}`;
+    const magicLink = `${env.FRONTEND_URL}/customer/${details.merchantSlug}/verify/${details.magicLinkToken}`;
+    await sendMail(
+      email,
+      `Booking Received – ${details.merchantName}`,
+      `<p>Hi ${details.customerName},</p>
+       <p>Your booking has been received. Here are the details:</p>
+       <p><strong>Item:</strong> ${details.assetName}</p>
+       <p><strong>From:</strong> ${details.startTime.toLocaleString()}</p>
+       <p><strong>To:</strong> ${details.endTime.toLocaleString()}</p>
+       <p><strong>Total:</strong> Rp ${details.totalPrice.toLocaleString()}</p>
+       <p><strong>Upfront payment:</strong> Rp ${details.upfrontFee.toLocaleString()}</p>
+       ${details.paymentLink ? `<p><a href="${details.paymentLink}">Complete your payment →</a></p>` : ''}
+       <hr/>
+       <p><strong>Access your booking portal</strong></p>
+       <p>Use the link below to view and manage your bookings. This link expires in 24 hours:</p>
+       <p><a href="${magicLink}">${magicLink}</a></p>
+       <p>Or log in anytime at: <a href="${portalUrl}">${portalUrl}</a></p>`,
+    );
+  },
+
   async sendBookingConfirmation(
     email: string,
     bookingDetails: {

@@ -8,6 +8,13 @@ import { AppError } from '../middleware/error.middleware';
 const MAGIC_LINK_TTL_MINUTES = 15;
 
 export const magicLinkService = {
+  async generateTokenForCustomer(customerId: string, ttlMinutes = MAGIC_LINK_TTL_MINUTES): Promise<string> {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
+    await magicLinkRepository.create(customerId, token, expiresAt);
+    return token;
+  },
+
   async requestLink(merchantId: string, email: string, merchantSlug: string): Promise<void> {
     const customer = await customerRepository.findByEmail(merchantId, email);
     if (!customer) {
@@ -15,10 +22,7 @@ export const magicLinkService = {
       return;
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + MAGIC_LINK_TTL_MINUTES * 60 * 1000);
-
-    await magicLinkRepository.create(customer.id, token, expiresAt);
+    const token = await this.generateTokenForCustomer(customer.id);
     await notificationService.sendMagicLink(email, token, merchantSlug);
   },
 
