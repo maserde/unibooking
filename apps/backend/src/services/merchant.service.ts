@@ -33,11 +33,11 @@ export const merchantService = {
   async registerWebhook(merchantId: string, apiKey: string): Promise<'SUCCESS' | 'FAILED'> {
     let status: 'SUCCESS' | 'FAILED' = 'FAILED';
     try {
-      await axios.get(`${MAYAR_BASE_URL}/webhook/register`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-        data: { urlHook: `${env.APP_URL}/api/webhooks/mayar` },
-        timeout: 10000,
-      });
+      await axios.post(
+        `${MAYAR_BASE_URL}/webhook/register`,
+        { urlHook: `${env.APP_URL}/api/webhooks/mayar` },
+        { headers: { Authorization: `Bearer ${apiKey}` }, timeout: 10000 },
+      );
       status = 'SUCCESS';
     } catch (err) {
       logger.warn('Failed to register Mayar webhook', { merchantId, err });
