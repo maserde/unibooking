@@ -23,23 +23,26 @@ export const webhookController = {
 
     // Mayar fires 'payment.received' when a customer completes payment
     if (event === 'payment.received') {
-      const mayarTransactionId = data?.id as string | undefined;
+      // data.productId = payment request ID stored as mayar_transaction_id at creation
+      const mayarProductId = data?.productId as string | undefined;
+      // data.id / data.transactionId = the actual completed transaction ID
+      const mayarTransactionId = data?.transactionId as string | undefined;
 
-      // 1. Find our payment record by Mayar transaction ID
-      let payment = mayarTransactionId
-        ? await paymentRepository.findByMayarTransactionId(mayarTransactionId)
+      // 1. Find our payment record by the payment request ID (productId)
+      let payment = mayarProductId
+        ? await paymentRepository.findByMayarTransactionId(mayarProductId)
         : null;
 
-      // 2. Fallback: extract booking ID from the description set at creation ("Booking <id>")
+      // 2. Fallback: extract booking ID from productDescription ("Booking <id>")
       if (!payment) {
-        const bookingId = (data?.description as string)?.replace('Booking ', '').trim();
+        const bookingId = (data?.productDescription as string)?.replace('Booking ', '').trim();
         if (bookingId) {
           payment = await paymentRepository.findByBookingId(bookingId);
         }
       }
 
       if (!payment) {
-        logger.warn('Webhook: payment record not found', { mayarTransactionId });
+        logger.warn('Webhook: payment record not found', { mayarProductId });
         res.status(200).json({ received: true });
         return;
       }
@@ -50,14 +53,14 @@ export const webhookController = {
         return;
       }
 
-      // 3. Confirm data.status === true (payment actually succeeded)
-      if (data?.status !== true) {
-        logger.info('Webhook: payment.received but status not true, skipping', { mayarTransactionId });
+      // 3. Confirm data.status === 'SUCCESS' (payment actually succeeded)
+      if (data?.status !== 'SUCCESS') {
+        logger.info('Webhook: payment.received but status not SUCCESS, skipping', { mayarProductId, status: data?.status });
         res.status(200).json({ received: true });
         return;
       }
 
-      // 4. Mark payment as PAID and booking as CONFIRMED
+      // 4. Mark payment as PAID and booking as CONFIRMED; store the real transaction ID
       await paymentRepository.updateStatus(payment.id, 'PAID', mayarTransactionId);
       await bookingRepository.updateStatus(booking.merchant_id, booking.id, 'CONFIRMED');
 
