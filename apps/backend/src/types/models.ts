@@ -30,7 +30,7 @@ export interface Customer {
   merchant_id: string;
   name: string;
   email: string;
-  phone_number?: string | null;
+  phone_number: string;
   created_at: Date;
   updated_at: Date;
 }

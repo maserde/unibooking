@@ -12,7 +12,7 @@ export const paymentService = {
     amount: number,
     description: string,
     customerEmail: string,
-    customerName: string,
+    customerPhone: string,
   ): Promise<Payment> {
     const apiKey = await encryptionService.getMerchantApiKey(merchantId);
 
@@ -24,8 +24,11 @@ export const paymentService = {
         'https://api.mayar.id/hl/v1/payment/create',
         {
           name: description,
-          amount,
           email: customerEmail,
+          amount,
+          mobile: customerPhone,
+          redirectURL: `${process.env.MAYAR_REDIRECT_URL}/customer/bookings/${bookingId}`,
+          expiredAt: new Date(Date.now() + 15 * 60 * 1000),
           description: `Booking ${bookingId}`,
         },
         {

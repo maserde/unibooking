@@ -95,7 +95,7 @@ export const bookingService = {
       upfrontFee,
       `${asset.name} booking`,
       customer.email,
-      customer.name,
+      customer.phone_number
     );
 
     return { booking, payment };
