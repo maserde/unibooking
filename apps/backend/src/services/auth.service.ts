@@ -6,15 +6,7 @@ import { signMerchantToken, verifyToken, decodeTokenExpiry, type MerchantTokenPa
 import { redis } from '../config/redis';
 import { notificationService } from './notification.service';
 import { AppError } from '../middleware/error.middleware';
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .slice(0, 80);
-}
+import { generateSlug } from '../utils/slug';
 
 export const authService = {
   async register(data: {

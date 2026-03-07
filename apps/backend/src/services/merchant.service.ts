@@ -5,6 +5,7 @@ import { encryptionService } from './encryption.service';
 import { AppError } from '../middleware/error.middleware';
 import { env } from '../config/env';
 import { logger } from '../config/logger';
+import { generateSlug } from '../utils/slug';
 import type { Merchant } from '../types/models';
 
 export const merchantService = {
@@ -20,6 +21,19 @@ export const merchantService = {
     merchantId: string,
     data: Partial<Pick<Merchant, 'name' | 'slug' | 'phone' | 'address' | 'upfront_fee_percentage'>>,
   ): Promise<Merchant> {
+    // Auto-regenerate slug when business name changes (and no explicit slug provided)
+    if (data.name && !data.slug) {
+      let slug = generateSlug(data.name);
+      let attempt = 0;
+      while (true) {
+        const existing = await merchantRepository.findBySlug(slug);
+        if (!existing || existing.id === merchantId) break;
+        attempt++;
+        slug = `${generateSlug(data.name)}-${attempt}`;
+      }
+      data.slug = slug;
+    }
+
     if (data.slug) {
       const existing = await merchantRepository.findBySlug(data.slug);
       if (existing && existing.id !== merchantId) {
