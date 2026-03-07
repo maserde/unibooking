@@ -3,7 +3,7 @@ import { merchantRepository } from '../repositories/merchant.repository';
 import { merchantUserRepository } from '../repositories/merchantUser.repository';
 import { encryptionService } from './encryption.service';
 import { AppError } from '../middleware/error.middleware';
-import { env } from '../config/env';
+import { env, MAYAR_BASE_URL } from '../config/env';
 import { logger } from '../config/logger';
 import type { Merchant } from '../types/models';
 
@@ -33,7 +33,7 @@ export const merchantService = {
   async registerWebhook(merchantId: string, apiKey: string): Promise<'SUCCESS' | 'FAILED'> {
     let status: 'SUCCESS' | 'FAILED' = 'FAILED';
     try {
-      await axios.get('https://api.mayar.id/hl/v1/webhook/register', {
+      await axios.get(`${MAYAR_BASE_URL}/webhook/register`, {
         headers: { Authorization: `Bearer ${apiKey}` },
         data: { urlHook: `${env.APP_URL}/api/webhooks/mayar` },
         timeout: 10000,
@@ -49,7 +49,7 @@ export const merchantService = {
   async setupPayment(merchantId: string, apiKey: string): Promise<void> {
     // Validate key against Mayar API
     try {
-      await axios.get('https://api.mayar.id/hl/v1/customer', {
+      await axios.get(`${MAYAR_BASE_URL}/customer`, {
         headers: { Authorization: `Bearer ${apiKey}` },
         timeout: 10000,
       });

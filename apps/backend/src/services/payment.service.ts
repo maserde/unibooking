@@ -3,6 +3,7 @@ import { paymentRepository } from '../repositories/payment.repository';
 import { encryptionService } from './encryption.service';
 import { AppError } from '../middleware/error.middleware';
 import { logger } from '../config/logger';
+import { env, MAYAR_BASE_URL } from '../config/env';
 import type { Payment } from '../types/models';
 
 export const paymentService = {
@@ -21,13 +22,13 @@ export const paymentService = {
 
     try {
       const response = await axios.post(
-        'https://api.mayar.id/hl/v1/payment/create',
+        `${MAYAR_BASE_URL}/payment/create`,
         {
           name: description,
           email: customerEmail,
           amount,
           mobile: customerPhone,
-          redirectURL: `${process.env.MAYAR_REDIRECT_URL}/customer/bookings/${bookingId}`,
+          redirectUrl: `${env.FRONTEND_URL}/customer/bookings/${bookingId}`,
           expiredAt: new Date(Date.now() + 15 * 60 * 1000),
           description: `Booking ${bookingId}`,
         },

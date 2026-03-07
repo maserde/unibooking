@@ -35,6 +35,8 @@ const envSchema = z.object({
   APP_URL: z.string().url(),
   FRONTEND_URL: z.string().url(),
 
+  MAYAR_ENVIRONMENT: z.enum(['production', 'testing']).default('production'),
+
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -46,3 +48,8 @@ if (!parsed.success) {
 
 export const env = parsed.data;
 export type Env = typeof env;
+
+export const MAYAR_BASE_URL =
+  env.MAYAR_ENVIRONMENT === 'testing'
+    ? 'https://api.mayar.club/hl/v1'
+    : 'https://api.mayar.id/hl/v1';
