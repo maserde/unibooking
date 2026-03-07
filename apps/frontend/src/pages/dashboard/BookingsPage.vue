@@ -19,6 +19,12 @@
           {{ tab.label }}
         </button>
       </div>
+      <input
+        v-model="search"
+        type="search"
+        placeholder="Search by customer name or ID…"
+        class="ml-auto px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64"
+      />
     </div>
 
     <AppCard :no-padding="true">
@@ -47,6 +53,7 @@ import { usePagination } from '@/composables/usePagination'
 import { formatCurrency, formatDateTime } from '@/utils/format'
 import { BookingStatus } from '@/types/enums'
 import type { Booking } from '@/types/models'
+import { useDebounce } from '@vueuse/core'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppTable from '@/components/ui/AppTable.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
@@ -58,6 +65,8 @@ const { page, limit, total, pageCount, reset } = usePagination(20)
 const loading = ref(false)
 const rows = ref<Booking[]>([])
 const activeStatus = ref<string>('')
+const search = ref('')
+const debouncedSearch = useDebounce(search, 300)
 
 const statusTabs = [
   { value: '', label: 'All' },
@@ -70,6 +79,7 @@ const statusTabs = [
 
 const columns = [
   { key: 'shortId', label: 'ID' },
+  { key: 'customer_name', label: 'Customer' },
   { key: 'start_time', label: 'Start' },
   { key: 'end_time', label: 'End' },
   { key: 'status', label: 'Status' },
@@ -91,6 +101,7 @@ async function fetchBookings() {
       status: activeStatus.value ? (activeStatus.value as (typeof BookingStatus)[keyof typeof BookingStatus]) : undefined,
       page: page.value,
       limit: limit.value,
+      search: debouncedSearch.value || undefined,
     })
     // Backend returns { bookings, total }
     rows.value = res.data.data.bookings
@@ -105,6 +116,8 @@ function setStatus(s: string) {
   reset()
 }
 
+watch(debouncedSearch, reset)
+
 function changePage(p: number) {
   page.value = p
 }
@@ -113,6 +126,6 @@ function goToDetail(row: Record<string, unknown>) {
   router.push(`/dashboard/bookings/${row.id}`)
 }
 
-watch([activeStatus, page], fetchBookings)
+watch([activeStatus, page, debouncedSearch], fetchBookings)
 onMounted(fetchBookings)
 </script>

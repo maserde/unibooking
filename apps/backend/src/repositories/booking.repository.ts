@@ -69,24 +69,33 @@ export const bookingRepository = {
 
   async findAll(
     merchantId: string,
-    options: { status?: BookingStatus; page: number; limit: number },
-  ): Promise<{ bookings: Booking[]; total: number }> {
+    options: { status?: BookingStatus; page: number; limit: number; search?: string },
+  ): Promise<{ bookings: Record<string, unknown>[]; total: number }> {
     const offset = (options.page - 1) * options.limit;
-    const conditions = ['merchant_id = ?'];
+    const conditions = ['b.merchant_id = ?'];
     const params: unknown[] = [merchantId];
 
     if (options.status) {
-      conditions.push('status = ?');
+      conditions.push('b.status = ?');
       params.push(options.status);
     }
 
+    if (options.search) {
+      conditions.push('(c.name LIKE ? OR b.id LIKE ?)');
+      const like = `%${options.search}%`;
+      params.push(like, like);
+    }
+
     const where = conditions.join(' AND ');
-    const bookings = await query<Booking>(
-      `SELECT * FROM bookings WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+    const bookings = await query<Record<string, unknown>>(
+      `SELECT b.*, c.name as customer_name
+       FROM bookings b
+       JOIN customers c ON c.id = b.customer_id
+       WHERE ${where} ORDER BY b.created_at DESC LIMIT ? OFFSET ?`,
       [...params, options.limit, offset],
     );
     const countRow = await queryOne<{ total: number }>(
-      `SELECT COUNT(*) as total FROM bookings WHERE ${where}`,
+      `SELECT COUNT(*) as total FROM bookings b JOIN customers c ON c.id = b.customer_id WHERE ${where}`,
       params,
     );
     return { bookings, total: countRow?.total ?? 0 };

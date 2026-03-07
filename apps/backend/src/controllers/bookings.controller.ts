@@ -9,7 +9,8 @@ export const bookingsController = {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 20;
     const status = req.query.status as BookingStatus | undefined;
-    const result = await bookingRepository.findAll(req.merchantId!, { status, page, limit });
+    const search = req.query.search as string | undefined;
+    const result = await bookingRepository.findAll(req.merchantId!, { status, page, limit, search });
     successResponse(res, result);
   },
 

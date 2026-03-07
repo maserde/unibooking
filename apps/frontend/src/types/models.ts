@@ -86,6 +86,7 @@ export interface Booking {
   upfront_fee: number
   discount_amount: number
   status: BookingStatus
+  customer_name?: string
   created_at: string
   updated_at: string
 }
