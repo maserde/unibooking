@@ -45,6 +45,17 @@
         </form>
       </AppCard>
 
+      <AppCard title="Change Password" class="mt-4">
+        <AppAlert v-if="passwordError" type="error" :message="passwordError" class="mb-4" />
+        <AppAlert v-if="passwordSuccess" type="success" message="Password updated successfully" class="mb-4" />
+        <form class="space-y-4" @submit.prevent="savePassword">
+          <AppInput v-model="passwords.current" label="Current password" type="password" />
+          <AppInput v-model="passwords.new" label="New password" type="password" hint="Minimum 8 characters" />
+          <AppInput v-model="passwords.confirm" label="Confirm new password" type="password" />
+          <AppButton type="submit" :loading="passwordLoading">Update password</AppButton>
+        </form>
+      </AppCard>
+
       <AppCard title="Payment Setup" class="mt-4">
         <AppAlert v-if="paymentError" type="error" :message="paymentError" class="mb-4" />
         <AppAlert v-if="paymentSuccess" type="success" message="API key updated" class="mb-4" />
@@ -98,6 +109,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { merchantApi } from '@/api/merchant'
 import { staffApi } from '@/api/staff'
+import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useApiError } from '@/composables/useApiError'
 import type { MerchantUser } from '@/types/models'
@@ -136,6 +148,11 @@ const paymentLoading = ref(false)
 const paymentError = ref('')
 const paymentSuccess = ref(false)
 
+const passwords = reactive({ current: '', new: '', confirm: '' })
+const passwordLoading = ref(false)
+const passwordError = ref('')
+const passwordSuccess = ref(false)
+
 async function saveProfile() {
   profileLoading.value = true
   profileError.value = ''
@@ -153,6 +170,27 @@ async function saveProfile() {
     profileError.value = extractError(e)
   } finally {
     profileLoading.value = false
+  }
+}
+
+async function savePassword() {
+  passwordError.value = ''
+  passwordSuccess.value = false
+  if (passwords.new !== passwords.confirm) {
+    passwordError.value = 'New passwords do not match'
+    return
+  }
+  passwordLoading.value = true
+  try {
+    await authApi.changePassword({ current_password: passwords.current, new_password: passwords.new })
+    passwords.current = ''
+    passwords.new = ''
+    passwords.confirm = ''
+    passwordSuccess.value = true
+  } catch (e) {
+    passwordError.value = extractError(e)
+  } finally {
+    passwordLoading.value = false
   }
 }
 

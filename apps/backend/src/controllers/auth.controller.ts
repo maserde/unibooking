@@ -44,4 +44,17 @@ export const authController = {
       : merchant;
     successResponse(res, { user: safeUser, merchant: merchantWithUrl });
   },
+
+  async changePassword(req: Request, res: Response): Promise<void> {
+    const user = await merchantUserRepository.findById(req.merchantUser!.id);
+    if (!user) throw new AppError('User not found', 404);
+
+    const { comparePassword, hashPassword } = await import('../utils/bcrypt');
+    const valid = await comparePassword(req.body.current_password, user.password_hash);
+    if (!valid) throw new AppError('Current password is incorrect', 400);
+
+    const newHash = await hashPassword(req.body.new_password);
+    await merchantUserRepository.updatePassword(user.id, newHash);
+    successResponse(res, null, 'Password updated successfully');
+  },
 };

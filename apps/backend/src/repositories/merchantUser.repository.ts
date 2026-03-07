@@ -75,6 +75,10 @@ export const merchantUserRepository = {
     );
   },
 
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    await execute('UPDATE merchant_users SET password_hash = ? WHERE id = ?', [passwordHash, id]);
+  },
+
   async delete(id: string, merchantId: string): Promise<void> {
     await execute('DELETE FROM merchant_users WHERE id = ? AND merchant_id = ?', [id, merchantId]);
   },

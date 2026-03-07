@@ -18,4 +18,7 @@ export const authApi = {
 
   verifyEmail: (token: string) =>
     apiClient.get<ApiResponse<null>>(`/auth/verify-email?token=${token}`),
+
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    apiClient.put<ApiResponse<null>>('/auth/password', data),
 }
