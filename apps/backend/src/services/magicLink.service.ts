@@ -8,7 +8,7 @@ import { AppError } from '../middleware/error.middleware';
 const MAGIC_LINK_TTL_MINUTES = 15;
 
 export const magicLinkService = {
-  async requestLink(merchantId: string, email: string): Promise<void> {
+  async requestLink(merchantId: string, email: string, merchantSlug: string): Promise<void> {
     const customer = await customerRepository.findByEmail(merchantId, email);
     if (!customer) {
       // Return silently to avoid user enumeration
@@ -19,7 +19,7 @@ export const magicLinkService = {
     const expiresAt = new Date(Date.now() + MAGIC_LINK_TTL_MINUTES * 60 * 1000);
 
     await magicLinkRepository.create(customer.id, token, expiresAt);
-    await notificationService.sendMagicLink(email, token, merchantId);
+    await notificationService.sendMagicLink(email, token, merchantSlug);
   },
 
   async verifyToken(token: string): Promise<{ jwtToken: string }> {

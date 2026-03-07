@@ -22,15 +22,16 @@ const router = createRouter({
     { path: '/dashboard/settings', component: () => import('@/pages/dashboard/SettingsPage.vue'), meta: { layout: 'dashboard', requiresMerchantAuth: true } },
 
     // Public storefront
-    { path: '/s/:slug', component: () => import('@/pages/storefront/StorefrontPage.vue'), meta: { layout: 'storefront' } },
-    { path: '/s/:slug/checkout', component: () => import('@/pages/storefront/CheckoutPage.vue'), meta: { layout: 'storefront' } },
-    { path: '/s/:slug/booking-success', component: () => import('@/pages/storefront/BookingSuccessPage.vue'), meta: { layout: 'storefront' } },
+    { path: '/store/:slug', component: () => import('@/pages/storefront/StorefrontPage.vue'), meta: { layout: 'storefront' } },
+    { path: '/store/:slug/checkout', component: () => import('@/pages/storefront/CheckoutPage.vue'), meta: { layout: 'storefront' } },
+    { path: '/store/:slug/booking-success', component: () => import('@/pages/storefront/BookingSuccessPage.vue'), meta: { layout: 'storefront' } },
 
     // Customer portal
-    { path: '/customer/login', component: () => import('@/pages/customer/CustomerLoginPage.vue'), meta: { layout: 'customer' } },
-    { path: '/customer/verify/:token', component: () => import('@/pages/customer/CustomerVerifyPage.vue'), meta: { layout: 'customer' } },
-    { path: '/customer/bookings', component: () => import('@/pages/customer/CustomerBookingsPage.vue'), meta: { layout: 'customer', requiresCustomerAuth: true } },
-    { path: '/customer/bookings/:id', component: () => import('@/pages/customer/CustomerBookingDetailPage.vue'), meta: { layout: 'customer', requiresCustomerAuth: true } },
+    { path: '/customer/:slug/login', component: () => import('@/pages/customer/CustomerLoginPage.vue'), meta: { layout: 'customer' } },
+    { path: '/customer/:slug/verify/:token', component: () => import('@/pages/customer/CustomerVerifyPage.vue'), meta: { layout: 'customer' } },
+    { path: '/customer/auth/verify/:token', redirect: () => '/login' },
+    { path: '/customer/:slug/bookings', component: () => import('@/pages/customer/CustomerBookingsPage.vue'), meta: { layout: 'customer', requiresCustomerAuth: true } },
+    { path: '/customer/:slug/bookings/:id', component: () => import('@/pages/customer/CustomerBookingDetailPage.vue'), meta: { layout: 'customer', requiresCustomerAuth: true } },
 
     // Root redirect
     { path: '/', redirect: '/login' },
@@ -41,6 +42,11 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   const customerStore = useCustomerStore()
+
+  // Track last visited storefront slug for customer login redirects
+  if (to.path.startsWith('/store/') && to.params.slug) {
+    localStorage.setItem('last_store_slug', to.params.slug as string)
+  }
 
   // Hydrate merchant if token exists but merchant not yet loaded (handles page refresh + re-login)
   if (authStore.token && !authStore.merchant) {
@@ -61,7 +67,8 @@ router.beforeEach(async (to, _from, next) => {
 
   // Requires customer auth
   if (to.meta.requiresCustomerAuth && !customerStore.isAuthenticated) {
-    return next('/customer/login')
+    const slug = (to.params.slug as string) || localStorage.getItem('last_store_slug')
+    return next(slug ? `/customer/${slug}/login` : '/login')
   }
 
   next()

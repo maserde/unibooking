@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { magicLinkService } from '../services/magicLink.service';
-import { customerRepository } from '../repositories/customer.repository';
 import { bookingRepository } from '../repositories/booking.repository';
 import { merchantRepository } from '../repositories/merchant.repository';
 import { successResponse } from '../utils/apiResponse';
@@ -13,7 +12,7 @@ export const customerPortalController = {
     const merchant = await merchantRepository.findBySlug(merchant_slug);
     if (!merchant) throw new AppError('Store not found', 404);
 
-    await magicLinkService.requestLink(merchant.id, email);
+    await magicLinkService.requestLink(merchant.id, email, merchant_slug);
     // Always respond with success to avoid user enumeration
     successResponse(res, null, 'If an account exists, a login link has been sent to your email.');
   },

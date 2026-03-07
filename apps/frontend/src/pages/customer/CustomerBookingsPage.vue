@@ -29,7 +29,7 @@
         v-for="b in filtered"
         :key="b.id"
         class="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-sm transition-shadow"
-        @click="router.push(`/customer/bookings/${b.id}`)"
+        @click="router.push(`/customer/${slug}/bookings/${b.id}`)"
       >
         <div class="flex items-start justify-between">
           <div>
@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { customerPortalApi } from '@/api/customerPortal'
 import { formatCurrency, formatDateTime } from '@/utils/format'
 import { BookingStatus } from '@/types/enums'
@@ -58,7 +58,9 @@ import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSpinner from '@/components/ui/AppSpinner.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 
+const route = useRoute()
 const router = useRouter()
+const slug = route.params.slug as string
 const loading = ref(true)
 const bookings = ref<Booking[]>([])
 const activeStatus = ref('')

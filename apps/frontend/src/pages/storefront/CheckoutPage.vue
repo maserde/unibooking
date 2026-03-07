@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-2xl mx-auto">
-    <RouterLink :to="`/s/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Back to catalog</RouterLink>
+    <RouterLink :to="`/store/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Back to catalog</RouterLink>
 
     <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-6">Book: {{ asset?.name }}</h2>
 
@@ -268,7 +268,7 @@ onMounted(async () => {
     const res = await publicApi.catalog(slug)
     catalog.value = res.data.data
   } catch {
-    router.push(`/s/${slug}`)
+    router.push(`/store/${slug}`)
   }
 })
 </script>

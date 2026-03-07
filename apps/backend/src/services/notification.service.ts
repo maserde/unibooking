@@ -36,7 +36,7 @@ export const notificationService = {
   },
 
   async sendMagicLink(email: string, token: string, merchantSlug: string): Promise<void> {
-    const link = `${env.FRONTEND_URL}/customer/auth/verify/${token}`;
+    const link = `${env.FRONTEND_URL}/customer/${merchantSlug}/verify/${token}`;
     await sendMail(
       email,
       'Your Unibooking login link',

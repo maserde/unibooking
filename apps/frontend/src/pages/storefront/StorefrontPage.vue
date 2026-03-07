@@ -52,7 +52,7 @@ const catalog = ref<PublicCatalogResponse | null>(null)
 const errorMsg = ref('')
 
 function goToCheckout(assetId: string) {
-  router.push(`/s/${route.params.slug}/checkout?assetId=${assetId}`)
+  router.push(`/store/${route.params.slug}/checkout?assetId=${assetId}`)
 }
 
 onMounted(async () => {

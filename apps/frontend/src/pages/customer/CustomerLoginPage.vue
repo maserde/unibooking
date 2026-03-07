@@ -14,7 +14,6 @@
         <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
         <form class="space-y-4" @submit.prevent="requestLink">
           <AppInput v-model="form.email" label="Email" type="email" :error="errors.email" />
-          <AppInput v-if="!slugFromQuery" v-model="form.slug" label="Merchant slug" :error="errors.slug" hint="Found in your booking confirmation" />
           <AppButton type="submit" class="w-full" :loading="loading">Send magic link</AppButton>
         </form>
       </template>
@@ -35,23 +34,21 @@ const route = useRoute()
 const customerStore = useCustomerStore()
 const { extractError } = useApiError()
 
-const slugFromQuery = route.query.slug as string | undefined
-const form = reactive({ email: '', slug: slugFromQuery ?? '' })
-const errors = reactive({ email: '', slug: '' })
+const slug = route.params.slug as string
+const form = reactive({ email: '' })
+const errors = reactive({ email: '' })
 const loading = ref(false)
 const errorMsg = ref('')
 const sent = ref(false)
 
 async function requestLink() {
   errors.email = ''
-  errors.slug = ''
   if (!form.email) { errors.email = 'Required'; return }
-  if (!form.slug) { errors.slug = 'Required'; return }
 
   loading.value = true
   errorMsg.value = ''
   try {
-    await customerStore.requestMagicLink(form.email, form.slug)
+    await customerStore.requestMagicLink(form.email, slug)
     sent.value = true
   } catch (e) {
     errorMsg.value = extractError(e)

@@ -8,7 +8,7 @@
     <div v-else>
       <div class="text-red-500 text-4xl mb-3">✗</div>
       <h3 class="font-semibold text-gray-900">Invalid or expired link</h3>
-      <RouterLink to="/customer/login" class="mt-3 inline-block text-sm text-primary-600 hover:underline">Try again</RouterLink>
+      <RouterLink :to="`/customer/${slug}/login`" class="mt-3 inline-block text-sm text-primary-600 hover:underline">Try again</RouterLink>
     </div>
   </div>
 </template>
@@ -22,6 +22,7 @@ import AppSpinner from '@/components/ui/AppSpinner.vue'
 const route = useRoute()
 const router = useRouter()
 const customerStore = useCustomerStore()
+const slug = route.params.slug as string
 
 const loading = ref(true)
 const success = ref(false)
@@ -30,7 +31,7 @@ onMounted(async () => {
   try {
     await customerStore.verifyToken(route.params.token as string)
     success.value = true
-    setTimeout(() => router.push('/customer/bookings'), 1000)
+    setTimeout(() => router.push(`/customer/${slug}/bookings`), 1000)
   } catch {
     // handled by success=false
   } finally {

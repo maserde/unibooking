@@ -31,7 +31,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Storefront URL</label>
             <div class="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
-              /s/{{ authStore.merchant?.slug }}
+              /store/{{ authStore.merchant?.slug }}
             </div>
           </div>
           <AppInput v-model="profile.phone" label="Phone" type="tel" />
