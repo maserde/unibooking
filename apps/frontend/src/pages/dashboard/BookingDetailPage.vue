@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <div class="flex items-center gap-3">
-      <RouterLink to="/dashboard/bookings" class="text-sm text-gray-500 hover:text-gray-700">← Bookings</RouterLink>
-      <h1 class="text-2xl font-semibold text-gray-900">Booking #{{ booking?.id.slice(0, 8) }}</h1>
+      <RouterLink to="/dashboard/bookings" class="text-sm text-gray-500 hover:text-gray-700">← Pemesanan</RouterLink>
+      <h1 class="text-2xl font-semibold text-gray-900">Pemesanan #{{ booking?.id.slice(0, 8) }}</h1>
       <AppBadge v-if="booking" :status="booking.status" type="booking" />
     </div>
 
@@ -11,80 +11,80 @@
     <div v-else-if="booking" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Left: Info -->
       <div class="space-y-4">
-        <AppCard title="Booking Info">
+        <AppCard title="Info Pemesanan">
           <dl class="space-y-3 text-sm">
-            <div class="flex justify-between"><dt class="text-gray-500">Start</dt><dd>{{ formatDateTime(booking.start_time) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">End</dt><dd>{{ formatDateTime(booking.end_time) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Asset</dt><dd>{{ booking.asset_name }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Mulai</dt><dd>{{ formatDateTime(booking.start_time) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Selesai</dt><dd>{{ formatDateTime(booking.end_time) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Aset</dt><dd>{{ booking.asset_name }}</dd></div>
             <div class="flex justify-between"><dt class="text-gray-500">Unit</dt><dd>{{ booking.unit_identifier }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Discount</dt><dd>{{ formatCurrency(booking.discount_amount) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Diskon</dt><dd>{{ formatCurrency(booking.discount_amount) }}</dd></div>
             <div class="flex justify-between"><dt class="text-gray-500">Total</dt><dd class="font-semibold">{{ formatCurrency(booking.total_price) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Upfront fee</dt><dd>{{ formatCurrency(booking.upfront_fee) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Biaya DP</dt><dd>{{ formatCurrency(booking.upfront_fee) }}</dd></div>
           </dl>
         </AppCard>
 
-        <AppCard title="Customer Info">
+        <AppCard title="Info Pelanggan">
           <dl class="space-y-3 text-sm">
-            <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd>{{ booking.customer_name }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Nama</dt><dd>{{ booking.customer_name }}</dd></div>
             <div class="flex justify-between"><dt class="text-gray-500">Email</dt><dd>{{ booking.customer_email }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Phone</dt><dd>{{ booking.customer_phone ?? '—' }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Telepon</dt><dd>{{ booking.customer_phone ?? '—' }}</dd></div>
           </dl>
         </AppCard>
       </div>
 
       <!-- Right: Payment + Actions -->
       <div class="space-y-4">
-        <AppCard title="Upfront Payment">
+        <AppCard title="Pembayaran DP">
           <div class="flex items-center gap-2 mb-3">
             <AppBadge v-if="booking.payment_status" :status="booking.payment_status" type="payment" />
-            <span v-else class="text-sm text-gray-500">No payment record</span>
+            <span v-else class="text-sm text-gray-500">Tidak ada catatan pembayaran</span>
           </div>
           <dl v-if="booking.payment_id" class="space-y-2 text-sm">
-            <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd>{{ formatCurrency(booking.payment_amount ?? 0) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Jumlah</dt><dd>{{ formatCurrency(booking.payment_amount ?? 0) }}</dd></div>
             <div v-if="booking.payment_link" class="flex justify-between">
-              <dt class="text-gray-500">Payment Link</dt>
-              <dd><a :href="booking.payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Open</a></dd>
+              <dt class="text-gray-500">Tautan Pembayaran</dt>
+              <dd><a :href="booking.payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Buka</a></dd>
             </div>
           </dl>
         </AppCard>
 
         <!-- Remainder Payment -->
-        <AppCard title="Remaining Balance">
+        <AppCard title="Sisa Saldo">
           <template v-if="booking.remainder_payment_id">
             <div class="flex items-center gap-2 mb-3">
               <AppBadge :status="booking.remainder_payment_status ?? 'UNPAID'" type="payment" />
             </div>
             <dl class="space-y-2 text-sm">
-              <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd>{{ formatCurrency(booking.remainder_payment_amount ?? 0) }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Jumlah</dt><dd>{{ formatCurrency(booking.remainder_payment_amount ?? 0) }}</dd></div>
               <div v-if="booking.remainder_payment_link" class="flex justify-between">
-                <dt class="text-gray-500">Payment Link</dt>
-                <dd><a :href="booking.remainder_payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Open</a></dd>
+                <dt class="text-gray-500">Tautan Pembayaran</dt>
+                <dd><a :href="booking.remainder_payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Buka</a></dd>
               </div>
             </dl>
           </template>
           <template v-else-if="canChargeRemainder">
             <p class="text-sm text-gray-500 mb-3">
-              Remaining: <span class="font-semibold text-gray-900">{{ formatCurrency(remainderAmount) }}</span>
+              Sisa: <span class="font-semibold text-gray-900">{{ formatCurrency(remainderAmount) }}</span>
             </p>
             <div v-if="cooldownRemaining > 0" class="flex items-center gap-2 mb-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
               <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Please wait <strong>{{ cooldownRemaining }}s</strong> before generating the payment link.</span>
+              <span>Tunggu <strong>{{ cooldownRemaining }} detik</strong> sebelum membuat tautan pembayaran.</span>
             </div>
             <AppButton size="sm" :loading="chargingRemainder" :disabled="cooldownRemaining > 0" @click="chargeRemainder">
-              Generate Remainder Payment
+              Buat Pembayaran Sisa
             </AppButton>
             <AppAlert v-if="remainderError" type="error" :message="remainderError" class="mt-3" />
           </template>
           <template v-else>
             <p class="text-sm text-gray-500">
-              {{ booking.upfront_fee >= booking.total_price ? 'Full payment was collected upfront.' : 'Available once booking is Active.' }}
+              {{ booking.upfront_fee >= booking.total_price ? 'Pembayaran penuh sudah dibayar di awal.' : 'Tersedia setelah pemesanan Aktif.' }}
             </p>
           </template>
         </AppCard>
 
-        <AppCard title="Update Status">
+        <AppCard title="Perbarui Status">
           <div class="flex flex-wrap gap-2">
             <AppButton
               v-for="transition in availableTransitions"
@@ -96,7 +96,7 @@
             >
               {{ transition.label }}
             </AppButton>
-            <p v-if="availableTransitions.length === 0" class="text-sm text-gray-500">No status transitions available.</p>
+            <p v-if="availableTransitions.length === 0" class="text-sm text-gray-500">Tidak ada perubahan status tersedia.</p>
           </div>
           <AppAlert v-if="statusError" type="error" :message="statusError" class="mt-3" />
         </AppCard>
@@ -182,16 +182,16 @@ const canChargeRemainder = computed(() =>
 
 const transitionMap: Record<BS, { status: BS; label: string; variant: 'primary' | 'secondary' | 'danger' }[]> = {
   PENDING_PAYMENT: [
-    { status: BookingStatus.CONFIRMED, label: 'Confirm', variant: 'primary' },
-    { status: BookingStatus.CANCELLED, label: 'Cancel', variant: 'danger' },
+    { status: BookingStatus.CONFIRMED, label: 'Konfirmasi', variant: 'primary' },
+    { status: BookingStatus.CANCELLED, label: 'Batalkan', variant: 'danger' },
   ],
   CONFIRMED: [
-    { status: BookingStatus.ACTIVE, label: 'Mark Active', variant: 'primary' },
-    { status: BookingStatus.CANCELLED, label: 'Cancel', variant: 'danger' },
+    { status: BookingStatus.ACTIVE, label: 'Tandai Aktif', variant: 'primary' },
+    { status: BookingStatus.CANCELLED, label: 'Batalkan', variant: 'danger' },
   ],
   ACTIVE: [
-    { status: BookingStatus.COMPLETED, label: 'Complete', variant: 'primary' },
-    { status: BookingStatus.CANCELLED, label: 'Cancel', variant: 'danger' },
+    { status: BookingStatus.COMPLETED, label: 'Selesaikan', variant: 'primary' },
+    { status: BookingStatus.CANCELLED, label: 'Batalkan', variant: 'danger' },
   ],
   COMPLETED: [],
   CANCELLED: [],
@@ -210,7 +210,7 @@ async function chargeRemainder() {
     booking.value = res.data.data
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    remainderError.value = err.response?.data?.error ?? 'Failed to generate remainder payment'
+    remainderError.value = err.response?.data?.error ?? 'Gagal membuat pembayaran sisa'
   } finally {
     chargingRemainder.value = false
   }
@@ -228,7 +228,7 @@ async function updateStatus(status: BS) {
     }
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    statusError.value = err.response?.data?.error ?? 'Failed to update status'
+    statusError.value = err.response?.data?.error ?? 'Gagal memperbarui status'
   } finally {
     updatingStatus.value = null
   }

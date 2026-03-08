@@ -1,16 +1,16 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-semibold text-gray-900">Catalog</h1>
-      <AppButton v-if="authStore.can(['OWNER', 'ADMIN'])" @click="openAssetModal()">+ Add Asset</AppButton>
+      <h1 class="text-2xl font-semibold text-gray-900">Katalog</h1>
+      <AppButton v-if="authStore.can(['OWNER', 'ADMIN'])" @click="openAssetModal()">+ Tambah Aset</AppButton>
     </div>
 
     <AppSpinner v-if="loading" class="mx-auto" size="lg" />
 
     <div v-else-if="assets.length === 0">
-      <AppEmptyState title="No assets" description="Create your first asset to get started." icon="📦">
+      <AppEmptyState title="Tidak ada aset" description="Buat aset pertama Anda untuk memulai." icon="📦">
         <template #action>
-          <AppButton @click="openAssetModal()">Add Asset</AppButton>
+          <AppButton @click="openAssetModal()">Tambah Aset</AppButton>
         </template>
       </AppEmptyState>
     </div>
@@ -24,7 +24,7 @@
           </div>
           <div v-if="authStore.can(['OWNER', 'ADMIN'])" class="flex gap-2">
             <AppButton variant="secondary" size="sm" @click="openAssetModal(asset)">Edit</AppButton>
-            <AppButton variant="danger" size="sm" @click="confirmDelete(asset)">Delete</AppButton>
+            <AppButton variant="danger" size="sm" @click="confirmDelete(asset)">Hapus</AppButton>
           </div>
         </div>
 
@@ -39,9 +39,9 @@
     <!-- Delete confirm -->
     <AppConfirmDialog
       v-model="deleteDialogOpen"
-      title="Delete Asset"
-      :description="`Are you sure you want to delete '${deletingAsset?.name}'? This cannot be undone.`"
-      confirm-label="Delete"
+      title="Hapus Aset"
+      :description="`Apakah Anda yakin ingin menghapus '${deletingAsset?.name}'? Tindakan ini tidak dapat dibatalkan.`"
+      confirm-label="Hapus"
       danger
       :loading="deleting"
       @confirm="doDelete"
@@ -105,11 +105,11 @@ async function doDelete() {
   deleting.value = true
   try {
     await assetsApi.delete(deletingAsset.value.id)
-    toast.success('Asset deleted')
+    toast.success('Aset dihapus')
     deleteDialogOpen.value = false
     fetchAssets()
   } catch {
-    toast.error('Failed to delete asset')
+    toast.error('Gagal menghapus aset')
   } finally {
     deleting.value = false
   }

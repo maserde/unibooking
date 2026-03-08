@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-3">
-      <h1 class="text-2xl font-semibold text-gray-900">Customers</h1>
+      <h1 class="text-2xl font-semibold text-gray-900">Pelanggan</h1>
       <input
         v-model="search"
         type="search"
-        placeholder="Search by name, email or phone…"
+        placeholder="Cari berdasarkan nama, email atau telepon…"
         class="ml-auto px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-72"
       />
     </div>
@@ -15,7 +15,7 @@
         <template #cell-created_at="{ row }">{{ formatDate(String((row as Record<string, unknown>).created_at)) }}</template>
         <template #cell-phone_number="{ row }">{{ (row as Record<string, unknown>).phone_number ?? '—' }}</template>
         <template #empty>
-          <AppEmptyState title="No customers" description="Customers will appear here after their first booking." />
+          <AppEmptyState title="Tidak ada pelanggan" description="Pelanggan akan muncul di sini setelah pemesanan pertama." />
         </template>
       </AppTable>
       <AppPagination :page="page" :page-count="pageCount" :total="total" @update:page="changePage" />
@@ -44,10 +44,10 @@ const search = ref('')
 const debouncedSearch = useDebounce(search, 300)
 
 const columns = [
-  { key: 'name', label: 'Name' },
+  { key: 'name', label: 'Nama' },
   { key: 'email', label: 'Email' },
-  { key: 'phone_number', label: 'Phone' },
-  { key: 'created_at', label: 'Joined' },
+  { key: 'phone_number', label: 'Telepon' },
+  { key: 'created_at', label: 'Bergabung' },
 ]
 
 const tableRows = computed(() => rows.value as unknown as Record<string, unknown>[])

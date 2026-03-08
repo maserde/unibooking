@@ -14,17 +14,17 @@
 
       <!-- Nav -->
       <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Main</p>
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utama</p>
         <RouterLink v-for="item in mainNav" :key="item.to" :to="item.to" :class="navClass(item.to)" @click="sidebarOpen = false">
           {{ item.label }}
         </RouterLink>
 
-        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Manage</p>
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Kelola</p>
         <RouterLink v-for="item in manageNav" :key="item.to" :to="item.to" :class="navClass(item.to)" @click="sidebarOpen = false">
           {{ item.label }}
         </RouterLink>
 
-        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Store</p>
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Toko</p>
         <a
           v-if="authStore.merchant?.storefront_url"
           :href="authStore.merchant.storefront_url"
@@ -33,10 +33,10 @@
           class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
           @click="sidebarOpen = false"
         >
-          View Storefront ↗
+          Lihat Toko Online ↗
         </a>
 
-        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Account</p>
+        <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2">Akun</p>
         <RouterLink v-for="item in accountNav" :key="item.to" :to="item.to" :class="navClass(item.to)" @click="sidebarOpen = false">
           {{ item.label }}
         </RouterLink>
@@ -46,7 +46,7 @@
       <div class="px-4 py-4 border-t border-gray-200">
         <p class="text-sm font-medium text-gray-900 truncate">{{ authStore.user?.full_name }}</p>
         <p class="text-xs text-gray-500">{{ authStore.user?.role }}</p>
-        <button type="button" class="mt-2 text-xs text-red-600 hover:underline" @click="handleLogout">Sign out</button>
+        <button type="button" class="mt-2 text-xs text-red-600 hover:underline" @click="handleLogout">Keluar</button>
       </div>
     </aside>
 
@@ -83,17 +83,17 @@ const route = useRoute()
 const sidebarOpen = ref(false)
 
 const mainNav = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/dashboard/bookings', label: 'Bookings' },
-  { to: '/dashboard/catalog', label: 'Catalog' },
+  { to: '/dashboard', label: 'Dasbor' },
+  { to: '/dashboard/bookings', label: 'Pemesanan' },
+  { to: '/dashboard/catalog', label: 'Katalog' },
 ]
 
 const manageNav = [
-  { to: '/dashboard/customers', label: 'Customers' },
-  { to: '/dashboard/promos', label: 'Promo Codes' },
+  { to: '/dashboard/customers', label: 'Pelanggan' },
+  { to: '/dashboard/promos', label: 'Kode Promo' },
 ]
 
-const accountNav = [{ to: '/dashboard/settings', label: 'Settings' }]
+const accountNav = [{ to: '/dashboard/settings', label: 'Pengaturan' }]
 
 function navClass(to: string) {
   const active = to === '/dashboard' ? route.path === to : route.path.startsWith(to)

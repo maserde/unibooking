@@ -36,12 +36,12 @@ async function sendMail(
 export const notificationService = {
   async sendVerificationEmail(email: string, token: string, name: string): Promise<void> {
     const link = `${env.FRONTEND_URL}/verify-email?token=${token}`;
-    await sendMail(email, 'Verify your BookingAja account', 'verify-email', { name, link });
+    await sendMail(email, 'Verifikasi akun BookingAja Anda', 'verify-email', { name, link });
   },
 
   async sendMagicLink(email: string, token: string, merchantSlug: string): Promise<void> {
     const link = `${env.FRONTEND_URL}/customer/${merchantSlug}/verify/${token}`;
-    await sendMail(email, 'Your BookingAja login link', 'magic-link', { link });
+    await sendMail(email, 'Tautan masuk BookingAja Anda', 'magic-link', { link });
   },
 
   async sendBookingCreated(
@@ -62,7 +62,7 @@ export const notificationService = {
   ): Promise<void> {
     const portalUrl = `${env.FRONTEND_URL}/customer/${details.merchantSlug}`;
     const magicLink = `${env.FRONTEND_URL}/customer/${details.merchantSlug}/verify/${details.magicLinkToken}`;
-    await sendMail(email, `Booking Received – ${details.merchantName}`, 'booking-created', {
+    await sendMail(email, `Pemesanan Diterima – ${details.merchantName}`, 'booking-created', {
       customerName: details.customerName,
       merchantName: details.merchantName,
       assetName: details.assetName,
@@ -89,7 +89,7 @@ export const notificationService = {
       merchantName: string;
     },
   ): Promise<void> {
-    await sendMail(email, `Booking Confirmed – ${bookingDetails.merchantName}`, 'booking-confirmed', {
+    await sendMail(email, `Pemesanan Dikonfirmasi – ${bookingDetails.merchantName}`, 'booking-confirmed', {
       customerName: bookingDetails.customerName,
       merchantName: bookingDetails.merchantName,
       assetName: bookingDetails.assetName,
@@ -108,7 +108,7 @@ export const notificationService = {
     status: string,
     merchantName: string,
   ): Promise<void> {
-    await sendMail(email, `Booking Update – ${merchantName}`, 'booking-status-update', {
+    await sendMail(email, `Pembaruan Pemesanan – ${merchantName}`, 'booking-status-update', {
       customerName,
       bookingId,
       status,
@@ -127,7 +127,7 @@ export const notificationService = {
       paymentLink: string;
     },
   ): Promise<void> {
-    await sendMail(email, `Remaining Balance Due – ${details.merchantName}`, 'remainder-payment', {
+    await sendMail(email, `Sisa Pembayaran – ${details.merchantName}`, 'remainder-payment', {
       customerName: details.customerName,
       merchantName: details.merchantName,
       assetName: details.assetName,
@@ -144,7 +144,7 @@ export const notificationService = {
     merchantName: string,
   ): Promise<void> {
     const loginUrl = `${env.FRONTEND_URL}/login`;
-    await sendMail(email, `You've been invited to ${merchantName} on BookingAja`, 'staff-invitation', {
+    await sendMail(email, `Anda diundang bergabung ke ${merchantName} di BookingAja`, 'staff-invitation', {
       fullName,
       merchantName,
       email,

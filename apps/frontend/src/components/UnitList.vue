@@ -1,13 +1,13 @@
 <template>
   <div class="px-6 py-4">
     <div class="flex items-center justify-between mb-3">
-      <p class="text-sm font-medium text-gray-700">Units</p>
-      <AppButton v-if="canEdit" variant="secondary" size="sm" @click="openUnitModal()">+ Add Unit</AppButton>
+      <p class="text-sm font-medium text-gray-700">Unit</p>
+      <AppButton v-if="canEdit" variant="secondary" size="sm" @click="openUnitModal()">+ Tambah Unit</AppButton>
     </div>
 
     <AppSpinner v-if="loading" size="sm" />
 
-    <div v-else-if="units.length === 0" class="text-sm text-gray-500">No units added yet.</div>
+    <div v-else-if="units.length === 0" class="text-sm text-gray-500">Belum ada unit ditambahkan.</div>
 
     <div v-else class="space-y-2">
       <div v-for="unit in units" :key="unit.id" class="flex items-center justify-between text-sm">
@@ -26,9 +26,9 @@
 
     <AppConfirmDialog
       v-model="deleteDialogOpen"
-      title="Delete Unit"
-      :description="`Delete unit '${deletingUnit?.identifier}'?`"
-      confirm-label="Delete"
+      title="Hapus Unit"
+      :description="`Hapus unit '${deletingUnit?.identifier}'?`"
+      confirm-label="Hapus"
       danger
       :loading="deleting"
       @confirm="doDelete"
@@ -83,11 +83,11 @@ async function doDelete() {
   deleting.value = true
   try {
     await assetsApi.deleteUnit(props.assetId, deletingUnit.value.id)
-    toast.success('Unit deleted')
+    toast.success('Unit dihapus')
     deleteDialogOpen.value = false
     fetchUnits()
   } catch {
-    toast.error('Failed to delete unit')
+    toast.error('Gagal menghapus unit')
   } finally {
     deleting.value = false
   }

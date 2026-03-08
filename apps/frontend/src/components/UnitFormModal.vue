@@ -1,23 +1,23 @@
 <template>
-  <AppModal :model-value="modelValue" :title="unit ? 'Edit Unit' : 'Add Unit'" size="sm" @update:model-value="emit('update:modelValue', $event)">
+  <AppModal :model-value="modelValue" :title="unit ? 'Edit Unit' : 'Tambah Unit'" size="sm" @update:model-value="emit('update:modelValue', $event)">
     <AppAlert v-if="error" type="error" :message="error" class="mb-4" />
     <form class="space-y-4" @submit.prevent="save">
-      <AppInput v-model="form.identifier" label="Identifier" placeholder="e.g. Room 101" :error="errors.identifier" />
+      <AppInput v-model="form.identifier" label="Identifier" placeholder="misal Ruang 101" :error="errors.identifier" />
       <AppSelect
         v-if="unit"
         v-model="form.status"
         label="Status"
         :options="[
-          { value: 'AVAILABLE', label: 'Available' },
-          { value: 'MAINTENANCE', label: 'Maintenance' },
-          { value: 'BROKEN', label: 'Broken' },
+          { value: 'AVAILABLE', label: 'Tersedia' },
+          { value: 'MAINTENANCE', label: 'Perawatan' },
+          { value: 'BROKEN', label: 'Rusak' },
         ]"
       />
     </form>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Cancel</AppButton>
-        <AppButton :loading="saving" @click="save">{{ unit ? 'Save' : 'Add Unit' }}</AppButton>
+        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Batal</AppButton>
+        <AppButton :loading="saving" @click="save">{{ unit ? 'Simpan' : 'Tambah Unit' }}</AppButton>
       </div>
     </template>
   </AppModal>
@@ -56,16 +56,16 @@ watch(() => props.modelValue, (open) => {
 })
 
 async function save() {
-  if (!form.identifier) { errors.identifier = 'Required'; return }
+  if (!form.identifier) { errors.identifier = 'Wajib diisi'; return }
   saving.value = true
   error.value = ''
   try {
     if (props.unit) {
       await assetsApi.updateUnit(props.assetId, props.unit.id, { identifier: form.identifier, status: form.status })
-      toast.success('Unit updated')
+      toast.success('Unit diperbarui')
     } else {
       await assetsApi.createUnit(props.assetId, { identifier: form.identifier })
-      toast.success('Unit added')
+      toast.success('Unit ditambahkan')
     }
     emit('saved')
     emit('update:modelValue', false)

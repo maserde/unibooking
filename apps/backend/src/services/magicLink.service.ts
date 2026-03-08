@@ -29,9 +29,9 @@ export const magicLinkService = {
   async verifyToken(token: string): Promise<{ jwtToken: string }> {
     const link = await magicLinkRepository.findByToken(token);
 
-    if (!link) throw new AppError('Invalid or expired link', 400);
-    if (link.is_used) throw new AppError('This link has already been used', 400);
-    if (new Date() > link.expires_at) throw new AppError('Link has expired', 400);
+    if (!link) throw new AppError('Tautan tidak valid atau kedaluwarsa', 400);
+    if (link.is_used) throw new AppError('Tautan ini sudah digunakan', 400);
+    if (new Date() > link.expires_at) throw new AppError('Tautan sudah kedaluwarsa', 400);
 
     await magicLinkRepository.markUsed(link.id);
 
@@ -42,7 +42,7 @@ export const magicLinkService = {
       'SELECT merchant_id FROM customers WHERE id = ?',
       [link.customer_id],
     );
-    if (!rows[0]) throw new AppError('Customer not found', 404);
+    if (!rows[0]) throw new AppError('Pelanggan tidak ditemukan', 404);
 
     const jwtToken = signCustomerToken({
       sub: link.customer_id,

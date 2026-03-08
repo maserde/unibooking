@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-semibold text-gray-900">Promo Codes</h1>
-      <AppButton @click="openModal()">+ Add Promo</AppButton>
+      <h1 class="text-2xl font-semibold text-gray-900">Kode Promo</h1>
+      <AppButton @click="openModal()">+ Tambah Promo</AppButton>
     </div>
 
     <AppCard :no-padding="true">
@@ -22,11 +22,11 @@
         <template #cell-actions="{ row }">
           <div class="flex gap-2">
             <AppButton variant="secondary" size="sm" @click="openModal(row as unknown as PromoCode)">Edit</AppButton>
-            <AppButton variant="danger" size="sm" @click="confirmDelete(row as unknown as PromoCode)">Delete</AppButton>
+            <AppButton variant="danger" size="sm" @click="confirmDelete(row as unknown as PromoCode)">Hapus</AppButton>
           </div>
         </template>
         <template #empty>
-          <AppEmptyState title="No promo codes" description="Create a promo code to offer discounts to customers." />
+          <AppEmptyState title="Tidak ada kode promo" description="Buat kode promo untuk memberikan diskon ke pelanggan." />
         </template>
       </AppTable>
     </AppCard>
@@ -35,9 +35,9 @@
 
     <AppConfirmDialog
       v-model="deleteDialogOpen"
-      title="Delete Promo Code"
-      :description="`Delete promo '${deletingPromo?.code}'?`"
-      confirm-label="Delete"
+      title="Hapus Kode Promo"
+      :description="`Hapus promo '${deletingPromo?.code}'?`"
+      confirm-label="Hapus"
       danger
       :loading="deleting"
       @confirm="doDelete"
@@ -68,12 +68,12 @@ const deletingPromo = ref<PromoCode | null>(null)
 const deleting = ref(false)
 
 const columns = [
-  { key: 'code', label: 'Code' },
-  { key: 'discount_type', label: 'Type' },
-  { key: 'discount_value', label: 'Value' },
-  { key: 'valid_until', label: 'Expires' },
-  { key: 'max_usage', label: 'Max Uses' },
-  { key: 'is_active', label: 'Active' },
+  { key: 'code', label: 'Kode' },
+  { key: 'discount_type', label: 'Tipe' },
+  { key: 'discount_value', label: 'Nilai' },
+  { key: 'valid_until', label: 'Kedaluwarsa' },
+  { key: 'max_usage', label: 'Maks Penggunaan' },
+  { key: 'is_active', label: 'Aktif' },
   { key: 'actions', label: '' },
 ]
 
@@ -106,7 +106,7 @@ async function toggle(promo: PromoCode) {
     await promosApi.toggle(promo.id, !promo.is_active)
     fetchPromos()
   } catch {
-    toast.error('Failed to toggle promo')
+    toast.error('Gagal mengubah status promo')
   }
 }
 
@@ -120,11 +120,11 @@ async function doDelete() {
   deleting.value = true
   try {
     await promosApi.delete(deletingPromo.value.id)
-    toast.success('Promo deleted')
+    toast.success('Promo dihapus')
     deleteDialogOpen.value = false
     fetchPromos()
   } catch {
-    toast.error('Failed to delete promo')
+    toast.error('Gagal menghapus promo')
   } finally {
     deleting.value = false
   }

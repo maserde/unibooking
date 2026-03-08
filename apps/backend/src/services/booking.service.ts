@@ -27,14 +27,14 @@ export const bookingService = {
   async createBooking(input: CreateBookingInput): Promise<{ booking: Booking; payment: Payment }> {
     // 1. Resolve slug → merchant
     const merchant = await merchantRepository.findBySlug(input.slug);
-    if (!merchant) throw new AppError('Merchant not found', 404);
+    if (!merchant) throw new AppError('Merchant tidak ditemukan', 404);
 
     // 2. Validate asset
     const asset = await assetRepository.findById(merchant.id, input.assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
 
     if (input.startTime >= input.endTime) {
-      throw new AppError('End time must be after start time', 422);
+      throw new AppError('Waktu selesai harus setelah waktu mulai', 422);
     }
 
     // 3. Check availability
@@ -44,7 +44,7 @@ export const bookingService = {
       input.endTime,
     );
     if (availableUnits.length === 0) {
-      throw new AppError('No available units for the selected time range', 422);
+      throw new AppError('Tidak ada unit tersedia untuk rentang waktu yang dipilih', 422);
     }
     const selectedUnit = availableUnits[0];
 
@@ -128,7 +128,7 @@ export const bookingService = {
     status: BookingStatus,
   ): Promise<Record<string, unknown>> {
     const booking = await bookingRepository.findById(merchantId, bookingId);
-    if (!booking) throw new AppError('Booking not found', 404);
+    if (!booking) throw new AppError('Pemesanan tidak ditemukan', 404);
 
     const validTransitions: Record<BookingStatus, BookingStatus[]> = {
       PENDING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
@@ -140,7 +140,7 @@ export const bookingService = {
 
     if (!validTransitions[booking.status].includes(status)) {
       throw new AppError(
-        `Cannot transition from ${booking.status} to ${status}`,
+        `Tidak dapat mengubah status dari ${booking.status} ke ${status}`,
         422,
       );
     }
@@ -154,22 +154,22 @@ export const bookingService = {
     bookingId: string,
   ): Promise<Record<string, unknown>> {
     const booking = await bookingRepository.findDetailedById(merchantId, bookingId);
-    if (!booking) throw new AppError('Booking not found', 404);
+    if (!booking) throw new AppError('Pemesanan tidak ditemukan', 404);
 
     if (booking.status !== 'ACTIVE') {
-      throw new AppError('Remainder can only be charged when booking is active', 422);
+      throw new AppError('Sisa pembayaran hanya bisa ditagih saat pemesanan aktif', 422);
     }
 
     const remainder = (booking.total_price as number) - (booking.upfront_fee as number);
     if (remainder <= 0) {
-      throw new AppError('Upfront fee covers the full amount — no remainder to charge', 422);
+      throw new AppError('DP sudah mencakup total — tidak ada sisa yang perlu ditagih', 422);
     }
 
     const existing = await paymentRepository.findRemainderByBookingId(bookingId);
-    if (existing) throw new AppError('Remainder payment has already been generated', 409);
+    if (existing) throw new AppError('Tagihan sisa pembayaran sudah dibuat', 409);
 
     const merchant = await merchantRepository.findById(merchantId);
-    if (!merchant) throw new AppError('Merchant not found', 404);
+    if (!merchant) throw new AppError('Merchant tidak ditemukan', 404);
 
     const payment = await paymentService.createPaymentLink(
       merchantId,
@@ -202,7 +202,7 @@ export const bookingService = {
     endTime: Date,
   ): Promise<{ available: boolean; availableCount: number }> {
     const merchant = await merchantRepository.findBySlug(slug);
-    if (!merchant) throw new AppError('Merchant not found', 404);
+    if (!merchant) throw new AppError('Merchant tidak ditemukan', 404);
 
     const units = await bookingRepository.findAvailableUnits(assetId, startTime, endTime);
     return { available: units.length > 0, availableCount: units.length };

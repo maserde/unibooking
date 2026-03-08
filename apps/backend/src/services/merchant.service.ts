@@ -12,7 +12,7 @@ import type { Merchant } from '../types/models';
 export const merchantService = {
   async getProfile(merchantId: string): Promise<Merchant> {
     const merchant = await merchantRepository.findById(merchantId);
-    if (!merchant) throw new AppError('Merchant not found', 404);
+    if (!merchant) throw new AppError('Merchant tidak ditemukan', 404);
     // Strip sensitive field
     const { mayar_api_key_encrypted: _, ...safe } = merchant;
     return safe as Merchant;
@@ -38,7 +38,7 @@ export const merchantService = {
     if (data.slug) {
       const existing = await merchantRepository.findBySlug(data.slug);
       if (existing && existing.id !== merchantId) {
-        throw new AppError('Slug already taken', 409);
+        throw new AppError('Slug sudah digunakan', 409);
       }
     }
     await merchantRepository.update(merchantId, data);
@@ -70,7 +70,7 @@ export const merchantService = {
       });
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
-        throw new AppError('Invalid Mayar API key', 422);
+        throw new AppError('API key Mayar tidak valid', 422);
       }
       // If Mayar is down, we still accept the key to avoid blocking setup
     }
@@ -82,8 +82,8 @@ export const merchantService = {
 
   async retryWebhookRegistration(merchantId: string): Promise<'SUCCESS' | 'FAILED'> {
     const merchant = await merchantRepository.findById(merchantId);
-    if (!merchant) throw new AppError('Merchant not found', 404);
-    if (!merchant.mayar_api_key_encrypted) throw new AppError('No API key configured', 422);
+    if (!merchant) throw new AppError('Merchant tidak ditemukan', 404);
+    if (!merchant.mayar_api_key_encrypted) throw new AppError('API key belum dikonfigurasi', 422);
 
     const apiKey = encryptionService.decryptApiKey(merchant.mayar_api_key_encrypted);
     return this.registerWebhook(merchantId, apiKey);

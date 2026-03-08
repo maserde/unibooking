@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold text-gray-900">Settings</h1>
+    <h1 class="text-2xl font-semibold text-gray-900">Pengaturan</h1>
 
     <!-- Tabs -->
     <div class="border-b border-gray-200">
@@ -23,13 +23,13 @@
 
     <!-- Profile Tab -->
     <div v-if="activeTab === 'profile'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <AppCard title="Business Profile">
+      <AppCard title="Profil Bisnis">
         <AppAlert v-if="profileError" type="error" :message="profileError" class="mb-4" />
-        <AppAlert v-if="profileSuccess" type="success" message="Profile updated successfully" class="mb-4" />
+        <AppAlert v-if="profileSuccess" type="success" message="Profil berhasil diperbarui" class="mb-4" />
         <form class="space-y-4" @submit.prevent="saveProfile">
           <!-- Logo upload -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Logo Perusahaan</label>
             <div class="flex items-center gap-4">
               <div class="w-20 h-20 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
@@ -44,18 +44,18 @@
               </div>
               <div>
                 <AppButton variant="secondary" size="sm" type="button" :loading="logoLoading" @click="logoInput?.click()">
-                  {{ authStore.merchant?.logo_url ? 'Change logo' : 'Upload logo' }}
+                  {{ authStore.merchant?.logo_url ? 'Ganti logo' : 'Unggah logo' }}
                 </AppButton>
-                <p class="text-xs text-gray-500 mt-1">PNG, JPG or WebP · max 5 MB</p>
+                <p class="text-xs text-gray-500 mt-1">PNG, JPG atau WebP · maks 5 MB</p>
               </div>
             </div>
             <AppAlert v-if="logoError" type="error" :message="logoError" class="mt-2" />
             <input ref="logoInput" type="file" accept="image/*" class="hidden" @change="onLogoSelect" />
           </div>
 
-          <AppInput v-model="profile.name" label="Business name" />
+          <AppInput v-model="profile.name" label="Nama bisnis" />
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Storefront URL</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL Storefront</label>
             <a
               v-if="authStore.merchant?.storefront_url"
               :href="authStore.merchant.storefront_url"
@@ -64,37 +64,37 @@
               class="text-sm text-primary-600 hover:underline bg-gray-50 border border-gray-200 rounded-md px-3 py-2 block truncate"
             >{{ authStore.merchant.storefront_url }}</a>
           </div>
-          <AppInput v-model="profile.phone" label="Phone" type="tel" />
-          <AppInput v-model="profile.address" label="Address" />
-          <AppInput v-model="profile.upfront_fee_percentage" label="Upfront fee %" type="number" hint="Percentage of total charged upfront (e.g., 30)" />
-          <AppButton type="submit" :loading="profileLoading">Save changes</AppButton>
+          <AppInput v-model="profile.phone" label="Telepon" type="tel" />
+          <AppInput v-model="profile.address" label="Alamat" />
+          <AppInput v-model="profile.upfront_fee_percentage" label="Biaya DP %" type="number" hint="Persentase total yang dikenakan di awal (misal 30)" />
+          <AppButton type="submit" :loading="profileLoading">Simpan perubahan</AppButton>
         </form>
       </AppCard>
 
-      <AppCard title="Change Password">
+      <AppCard title="Ubah Kata Sandi">
         <AppAlert v-if="passwordError" type="error" :message="passwordError" class="mb-4" />
-        <AppAlert v-if="passwordSuccess" type="success" message="Password updated successfully" class="mb-4" />
+        <AppAlert v-if="passwordSuccess" type="success" message="Kata sandi berhasil diperbarui" class="mb-4" />
         <form class="space-y-4" @submit.prevent="savePassword">
-          <AppInput v-model="passwords.current" label="Current password" type="password" />
-          <AppInput v-model="passwords.new" label="New password" type="password" hint="Minimum 8 characters" />
-          <AppInput v-model="passwords.confirm" label="Confirm new password" type="password" />
-          <AppButton type="submit" :loading="passwordLoading">Update password</AppButton>
+          <AppInput v-model="passwords.current" label="Kata sandi saat ini" type="password" />
+          <AppInput v-model="passwords.new" label="Kata sandi baru" type="password" hint="Minimal 8 karakter" />
+          <AppInput v-model="passwords.confirm" label="Konfirmasi kata sandi baru" type="password" />
+          <AppButton type="submit" :loading="passwordLoading">Perbarui kata sandi</AppButton>
         </form>
       </AppCard>
     </div>
 
     <!-- Payment Tab -->
     <div v-if="activeTab === 'payment'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <AppCard title="Payment Setup">
+      <AppCard title="Pengaturan Pembayaran">
         <AppAlert v-if="paymentError" type="error" :message="paymentError" class="mb-4" />
-        <AppAlert v-if="paymentSuccess" type="success" message="API key updated" class="mb-4" />
+        <AppAlert v-if="paymentSuccess" type="success" message="API key diperbarui" class="mb-4" />
         <form class="space-y-4" @submit.prevent="savePayment">
-          <AppInput v-model="mayarKey" label="Mayar API Key" type="password" hint="Your key is encrypted before storage" />
-          <AppButton type="submit" :loading="paymentLoading">Update API key</AppButton>
+          <AppInput v-model="mayarKey" label="Mayar API Key" type="password" hint="Key Anda dienkripsi sebelum disimpan" />
+          <AppButton type="submit" :loading="paymentLoading">Perbarui API key</AppButton>
         </form>
       </AppCard>
 
-      <AppCard title="Webhook Integration">
+      <AppCard title="Integrasi Webhook">
         <AppSpinner v-if="webhookLoading" size="sm" />
         <div v-else class="space-y-3">
           <div>
@@ -108,23 +108,23 @@
             <span
               v-if="webhookInfo?.webhook_status === 'SUCCESS'"
               class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
-            >Registered</span>
+            >Terdaftar</span>
             <span
               v-else-if="webhookInfo?.webhook_status === 'FAILED'"
               class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"
-            >Failed</span>
+            >Gagal</span>
             <span
               v-else
               class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600"
-            >Not registered</span>
+            >Belum terdaftar</span>
           </div>
 <AppAlert v-if="webhookRetryError" type="error" :message="webhookRetryError" />
-          <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook registered successfully" />
+          <AppAlert v-if="webhookRetrySuccess" type="success" message="Webhook berhasil didaftarkan" />
           <AppButton
             variant="secondary"
             :loading="webhookRetrying"
             @click="retryWebhook"
-          >Reconnect Webhook</AppButton>
+          >Sambungkan Ulang Webhook</AppButton>
         </div>
       </AppCard>
     </div>
@@ -132,8 +132,8 @@
     <!-- Staff Tab -->
     <div v-if="activeTab === 'staff'">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-medium text-gray-900">Staff Members</h2>
-        <AppButton @click="staffModalOpen = true">+ Invite Staff</AppButton>
+        <h2 class="text-lg font-medium text-gray-900">Anggota Staf</h2>
+        <AppButton @click="staffModalOpen = true">+ Undang Staf</AppButton>
       </div>
       <AppCard :no-padding="true">
         <AppTable :columns="staffColumns" :rows="staffRows" :loading="staffLoading">
@@ -144,11 +144,11 @@
               size="sm"
               @click="confirmRemoveStaff(row as StaffRow)"
             >
-              Remove
+              Hapus
             </AppButton>
           </template>
           <template #empty>
-            <AppEmptyState title="No staff yet" description="Invite team members to help manage bookings." />
+            <AppEmptyState title="Belum ada staf" description="Undang anggota tim untuk membantu mengelola pemesanan." />
           </template>
         </AppTable>
       </AppCard>
@@ -157,9 +157,9 @@
 
       <AppConfirmDialog
         v-model="removeDialogOpen"
-        title="Remove Staff"
-        :description="`Remove ${removingStaff?.full_name}?`"
-        confirm-label="Remove"
+        title="Hapus Staf"
+        :description="`Hapus ${removingStaff?.full_name}?`"
+        confirm-label="Hapus"
         danger
         :loading="removing"
         @confirm="doRemoveStaff"
@@ -195,9 +195,9 @@ const toast = useToast()
 const activeTab = ref<'profile' | 'payment' | 'staff'>('profile')
 
 const tabs = [
-  { key: 'profile' as const, label: 'Profile' },
-  { key: 'payment' as const, label: 'Payment' },
-  { key: 'staff' as const, label: 'Staff' },
+  { key: 'profile' as const, label: 'Profil' },
+  { key: 'payment' as const, label: 'Pembayaran' },
+  { key: 'staff' as const, label: 'Staf' },
 ]
 
 // Logo
@@ -214,7 +214,7 @@ async function onLogoSelect(e: Event) {
   try {
     const res = await merchantApi.uploadLogo(file)
     authStore.setMerchant(res.data.data)
-    toast.success('Logo updated')
+    toast.success('Logo diperbarui')
   } catch (e) {
     logoError.value = extractError(e)
   } finally {
@@ -272,7 +272,7 @@ async function savePassword() {
   passwordError.value = ''
   passwordSuccess.value = false
   if (passwords.new !== passwords.confirm) {
-    passwordError.value = 'New passwords do not match'
+    passwordError.value = 'Kata sandi baru tidak cocok'
     return
   }
   passwordLoading.value = true
@@ -309,7 +309,7 @@ async function retryWebhook() {
     if (res.data.data.webhook_status === 'SUCCESS') {
       webhookRetrySuccess.value = true
     } else {
-      webhookRetryError.value = 'Registration failed. Check that your APP_URL is publicly reachable by Mayar.'
+      webhookRetryError.value = 'Pendaftaran gagal. Pastikan APP_URL Anda bisa diakses publik oleh Mayar.'
     }
   } catch (e) {
     webhookRetryError.value = extractError(e)
@@ -343,9 +343,9 @@ const removingStaff = ref<MerchantUser | null>(null)
 const removing = ref(false)
 
 const staffColumns = [
-  { key: 'full_name', label: 'Name' },
+  { key: 'full_name', label: 'Nama' },
   { key: 'email', label: 'Email' },
-  { key: 'role', label: 'Role' },
+  { key: 'role', label: 'Peran' },
   { key: 'actions', label: '' },
 ]
 

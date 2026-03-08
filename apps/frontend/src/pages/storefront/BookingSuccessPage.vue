@@ -1,15 +1,15 @@
 <template>
   <div class="text-center py-12">
     <div class="text-green-500 text-5xl mb-4">✓</div>
-    <h2 class="text-2xl font-semibold text-gray-900">Booking Confirmed!</h2>
-    <p class="text-gray-500 mt-2">Your booking has been received and payment processed.</p>
-    <p v-if="email" class="text-sm text-gray-500 mt-1">A confirmation will be sent to {{ email }}</p>
+    <h2 class="text-2xl font-semibold text-gray-900">Pemesanan Dikonfirmasi!</h2>
+    <p class="text-gray-500 mt-2">Pemesanan Anda telah diterima dan pembayaran diproses.</p>
+    <p v-if="email" class="text-sm text-gray-500 mt-1">Konfirmasi akan dikirim ke {{ email }}</p>
     <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
       <RouterLink :to="`/customer/${slug}/login`" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-md hover:bg-primary-50">
-        View my bookings
+        Lihat pemesanan saya
       </RouterLink>
       <RouterLink :to="`/store/${slug}`" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
-        Back to catalog
+        Kembali ke katalog
       </RouterLink>
     </div>
   </div>

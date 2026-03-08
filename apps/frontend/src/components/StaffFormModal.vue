@@ -1,15 +1,15 @@
 <template>
-  <AppModal :model-value="modelValue" title="Invite Staff" size="sm" @update:model-value="emit('update:modelValue', $event)">
+  <AppModal :model-value="modelValue" title="Undang Staf" size="sm" @update:model-value="emit('update:modelValue', $event)">
     <AppAlert v-if="error" type="error" :message="error" class="mb-4" />
     <form class="space-y-4" @submit.prevent="save">
-      <AppInput v-model="form.full_name" label="Full name" :error="errors.full_name" />
+      <AppInput v-model="form.full_name" label="Nama lengkap" :error="errors.full_name" />
       <AppInput v-model="form.email" label="Email" type="email" :error="errors.email" />
-      <AppSelect v-model="form.role" label="Role" :options="[{ value: 'ADMIN', label: 'Admin' }, { value: 'STAFF', label: 'Staff' }]" />
+      <AppSelect v-model="form.role" label="Peran" :options="[{ value: 'ADMIN', label: 'Admin' }, { value: 'STAFF', label: 'Staf' }]" />
     </form>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Cancel</AppButton>
-        <AppButton :loading="saving" @click="save">Invite</AppButton>
+        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Batal</AppButton>
+        <AppButton :loading="saving" @click="save">Undang</AppButton>
       </div>
     </template>
   </AppModal>
@@ -49,14 +49,14 @@ watch(() => props.modelValue, (open) => {
 async function save() {
   errors.full_name = ''
   errors.email = ''
-  if (!form.full_name) { errors.full_name = 'Required'; return }
-  if (!form.email) { errors.email = 'Required'; return }
+  if (!form.full_name) { errors.full_name = 'Wajib diisi'; return }
+  if (!form.email) { errors.email = 'Wajib diisi'; return }
 
   saving.value = true
   error.value = ''
   try {
     await staffApi.invite(form)
-    toast.success('Staff invited')
+    toast.success('Staf diundang')
     emit('saved')
     emit('update:modelValue', false)
   } catch (e) {

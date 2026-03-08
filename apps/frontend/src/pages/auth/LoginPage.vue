@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold text-gray-900 mb-6">Sign in to your account</h2>
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Masuk ke akun Anda</h2>
     <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
     <form class="space-y-4" @submit.prevent="handleLogin">
       <AppInput v-model="form.email" label="Email" type="email" autocomplete="email" :error="errors.email" />
-      <AppInput v-model="form.password" label="Password" type="password" autocomplete="current-password" :error="errors.password" />
-      <AppButton type="submit" class="w-full" :loading="loading">Sign in</AppButton>
+      <AppInput v-model="form.password" label="Kata Sandi" type="password" autocomplete="current-password" :error="errors.password" />
+      <AppButton type="submit" class="w-full" :loading="loading">Masuk</AppButton>
     </form>
     <p class="mt-4 text-sm text-center text-gray-600">
-      Don't have an account?
-      <RouterLink to="/register" class="text-primary-600 hover:underline">Register</RouterLink>
+      Belum punya akun?
+      <RouterLink to="/register" class="text-primary-600 hover:underline">Daftar</RouterLink>
     </p>
   </div>
 </template>
@@ -36,8 +36,8 @@ async function handleLogin() {
   errors.email = ''
   errors.password = ''
   errorMsg.value = ''
-  if (!form.email) { errors.email = 'Email is required'; return }
-  if (!form.password) { errors.password = 'Password is required'; return }
+  if (!form.email) { errors.email = 'Email wajib diisi'; return }
+  if (!form.password) { errors.password = 'Kata sandi wajib diisi'; return }
 
   loading.value = true
   try {

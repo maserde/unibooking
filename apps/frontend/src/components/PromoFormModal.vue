@@ -1,39 +1,39 @@
 <template>
-  <AppModal :model-value="modelValue" :title="promo ? 'Edit Promo' : 'Add Promo Code'" size="md" @update:model-value="emit('update:modelValue', $event)">
+  <AppModal :model-value="modelValue" :title="promo ? 'Edit Promo' : 'Tambah Kode Promo'" size="md" @update:model-value="emit('update:modelValue', $event)">
     <AppAlert v-if="error" type="error" :message="error" class="mb-4" />
     <form class="space-y-4" @submit.prevent="save">
-      <AppInput v-model="form.code" label="Promo code" placeholder="SUMMER20" :error="errors.code" />
+      <AppInput v-model="form.code" label="Kode promo" placeholder="SUMMER20" :error="errors.code" />
       <AppSelect
         v-model="form.discount_type"
-        label="Discount type"
-        :options="[{ value: 'PERCENTAGE', label: 'Percentage' }, { value: 'FIXED_AMOUNT', label: 'Fixed amount' }]"
+        label="Tipe diskon"
+        :options="[{ value: 'PERCENTAGE', label: 'Persentase' }, { value: 'FIXED_AMOUNT', label: 'Jumlah tetap' }]"
       />
       <AppInput
         v-model="form.discount_value"
-        label="Discount value"
+        label="Nilai diskon"
         type="number"
-        :hint="form.discount_type === 'PERCENTAGE' ? 'e.g. 20 for 20%' : 'Amount in IDR'"
+        :hint="form.discount_type === 'PERCENTAGE' ? 'misal 20 untuk 20%' : 'Jumlah dalam IDR'"
         :error="errors.discount_value"
       />
       <div class="grid grid-cols-2 gap-3">
-        <AppDateTimePicker v-model="form.valid_from" label="Valid from" :error="errors.valid_from" />
-        <AppDateTimePicker v-model="form.valid_until" label="Valid until" :error="errors.valid_until" />
+        <AppDateTimePicker v-model="form.valid_from" label="Berlaku dari" :error="errors.valid_from" />
+        <AppDateTimePicker v-model="form.valid_until" label="Berlaku sampai" :error="errors.valid_until" />
       </div>
 
       <details class="border border-gray-200 rounded-md">
-        <summary class="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">Advanced settings</summary>
+        <summary class="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">Pengaturan lanjutan</summary>
         <div class="p-4 space-y-3">
-          <AppInput v-model="form.max_usage" label="Max total uses" type="number" hint="Leave empty for unlimited" />
-          <AppInput v-model="form.max_usage_per_customer" label="Max uses per customer" type="number" hint="Leave empty for unlimited" />
-          <AppInput v-model="form.max_discount_amount" label="Max discount amount (IDR)" type="number" hint="Cap for percentage discounts" />
-          <AppInput v-model="form.min_transaction_amount" label="Min transaction (IDR)" type="number" />
+          <AppInput v-model="form.max_usage" label="Maks total penggunaan" type="number" hint="Kosongkan untuk tidak terbatas" />
+          <AppInput v-model="form.max_usage_per_customer" label="Maks penggunaan per pelanggan" type="number" hint="Kosongkan untuk tidak terbatas" />
+          <AppInput v-model="form.max_discount_amount" label="Maks jumlah diskon (IDR)" type="number" hint="Batas untuk diskon persentase" />
+          <AppInput v-model="form.min_transaction_amount" label="Min transaksi (IDR)" type="number" />
         </div>
       </details>
     </form>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Cancel</AppButton>
-        <AppButton :loading="saving" @click="save">{{ promo ? 'Save changes' : 'Create promo' }}</AppButton>
+        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Batal</AppButton>
+        <AppButton :loading="saving" @click="save">{{ promo ? 'Simpan perubahan' : 'Buat promo' }}</AppButton>
       </div>
     </template>
   </AppModal>
@@ -96,10 +96,10 @@ async function save() {
   errors.discount_value = ''
   errors.valid_from = ''
   errors.valid_until = ''
-  if (!form.code) { errors.code = 'Required'; return }
-  if (!form.discount_value) { errors.discount_value = 'Required'; return }
-  if (!form.valid_from) { errors.valid_from = 'Required'; return }
-  if (!form.valid_until) { errors.valid_until = 'Required'; return }
+  if (!form.code) { errors.code = 'Wajib diisi'; return }
+  if (!form.discount_value) { errors.discount_value = 'Wajib diisi'; return }
+  if (!form.valid_from) { errors.valid_from = 'Wajib diisi'; return }
+  if (!form.valid_until) { errors.valid_until = 'Wajib diisi'; return }
 
   saving.value = true
   error.value = ''
@@ -117,10 +117,10 @@ async function save() {
     }
     if (props.promo) {
       await promosApi.update(props.promo.id, payload)
-      toast.success('Promo updated')
+      toast.success('Promo diperbarui')
     } else {
       await promosApi.create(payload)
-      toast.success('Promo created')
+      toast.success('Promo dibuat')
     }
     emit('saved')
     emit('update:modelValue', false)

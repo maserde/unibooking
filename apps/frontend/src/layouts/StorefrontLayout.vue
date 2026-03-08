@@ -15,7 +15,7 @@
           <RouterLink
             :to="`/customer/${slug}/login`"
             class="text-sm font-medium px-3 py-1.5 rounded-md bg-primary-600 text-white hover:bg-primary-700 transition-colors"
-          >Customer Portal</RouterLink>
+          >Portal Pelanggan</RouterLink>
         </div>
       </div>
     </header>
