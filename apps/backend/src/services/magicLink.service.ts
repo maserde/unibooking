@@ -29,9 +29,9 @@ export const magicLinkService = {
   async verifyToken(token: string): Promise<{ jwtToken: string }> {
     const link = await magicLinkRepository.findByToken(token);
 
-    if (!link) throw new AppError('Tautan tidak valid atau kedaluwarsa', 400);
-    if (link.is_used) throw new AppError('Tautan ini sudah digunakan', 400);
-    if (new Date() > link.expires_at) throw new AppError('Tautan sudah kedaluwarsa', 400);
+    if (!link) throw new AppError('Link tidak valid atau sudah kedaluwarsa', 400);
+    if (link.is_used) throw new AppError('Link ini sudah digunakan', 400);
+    if (new Date() > link.expires_at) throw new AppError('Link sudah kedaluwarsa', 400);
 
     await magicLinkRepository.markUsed(link.id);
 

@@ -5,7 +5,7 @@
     <div v-if="success" class="text-center py-4">
       <div class="text-green-600 text-4xl mb-3">✓</div>
       <h3 class="font-medium text-gray-900">Cek email Anda</h3>
-      <p class="text-sm text-gray-500 mt-1">Kami telah mengirim tautan verifikasi ke {{ form.email }}</p>
+      <p class="text-sm text-gray-500 mt-1">Kami telah mengirim link verifikasi ke {{ form.email }}</p>
     </div>
 
     <template v-else>

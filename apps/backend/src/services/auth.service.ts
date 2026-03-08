@@ -45,7 +45,7 @@ export const authService = {
 
   async verifyEmail(token: string): Promise<{ message: string }> {
     const user = await merchantUserRepository.findByVerificationToken(token);
-    if (!user) throw new AppError('Token verifikasi tidak valid atau kedaluwarsa', 400);
+    if (!user) throw new AppError('Token verifikasi tidak valid atau sudah kedaluwarsa', 400);
     await merchantUserRepository.markEmailVerified(user.id);
     return { message: 'Email berhasil diverifikasi. Silakan masuk.' };
   },

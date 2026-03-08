@@ -32,7 +32,7 @@ const errorMsg = ref('')
 
 onMounted(async () => {
   const token = route.query.token as string
-  if (!token) { loading.value = false; errorMsg.value = 'Tautan verifikasi tidak valid'; return }
+  if (!token) { loading.value = false; errorMsg.value = 'Link verifikasi tidak valid'; return }
   try {
     await authApi.verifyEmail(token)
     success.value = true

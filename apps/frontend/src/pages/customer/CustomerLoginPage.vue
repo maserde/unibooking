@@ -2,19 +2,19 @@
   <div class="min-h-[70vh] flex items-center justify-center px-4">
     <div class="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-10 shadow-sm">
       <h2 class="text-2xl font-bold text-gray-900 mb-2">Lacak pemesanan Anda</h2>
-      <p class="text-sm text-gray-500 mb-8">Masukkan email Anda untuk menerima tautan ajaib.</p>
+      <p class="text-sm text-gray-500 mb-8">Masukkan email Anda untuk menerima magic link.</p>
 
       <div v-if="sent" class="text-center py-6">
         <div class="text-green-600 text-5xl mb-4">✉</div>
         <h3 class="text-lg font-semibold text-gray-900">Cek email Anda</h3>
-        <p class="text-sm text-gray-500 mt-2">Kami telah mengirim tautan ajaib ke <span class="font-medium text-gray-700">{{ form.email }}</span></p>
+        <p class="text-sm text-gray-500 mt-2">Kami telah mengirim magic link ke <span class="font-medium text-gray-700">{{ form.email }}</span></p>
       </div>
 
       <template v-else>
         <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-5" />
         <form class="space-y-5" @submit.prevent="requestLink">
           <AppInput v-model="form.email" label="Email" type="email" placeholder="your@email.com" :error="errors.email" />
-          <AppButton type="submit" class="w-full" :loading="loading">Kirim tautan ajaib</AppButton>
+          <AppButton type="submit" class="w-full" :loading="loading">Kirim magic link</AppButton>
         </form>
       </template>
     </div>

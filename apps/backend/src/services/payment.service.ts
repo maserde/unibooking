@@ -50,7 +50,7 @@ export const paymentService = {
       mayarTransactionId = data?.id;
     } catch (err) {
       logger.error('Mayar payment link creation failed', { err });
-      throw new AppError('Gagal membuat tautan pembayaran. Silakan coba lagi.', 502);
+      throw new AppError('Gagal membuat link pembayaran. Silakan coba lagi.', 502);
     }
 
     return paymentRepository.create({

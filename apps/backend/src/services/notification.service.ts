@@ -41,7 +41,7 @@ export const notificationService = {
 
   async sendMagicLink(email: string, token: string, merchantSlug: string): Promise<void> {
     const link = `${env.FRONTEND_URL}/customer/${merchantSlug}/verify/${token}`;
-    await sendMail(email, 'Tautan masuk BookingAja Anda', 'magic-link', { link });
+    await sendMail(email, 'Link masuk BookingAja Anda', 'magic-link', { link });
   },
 
   async sendBookingCreated(
