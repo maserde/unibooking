@@ -1,4 +1,5 @@
 import { merchantRepository } from '../repositories/merchant.repository';
+import { paymentRepository } from '../repositories/payment.repository';
 import { customerRepository } from '../repositories/customer.repository';
 import { assetRepository } from '../repositories/asset.repository';
 import { bookingRepository } from '../repositories/booking.repository';
@@ -145,6 +146,52 @@ export const bookingService = {
     }
 
     await bookingRepository.updateStatus(merchantId, bookingId, status);
+    return (await bookingRepository.findDetailedById(merchantId, bookingId))!;
+  },
+
+  async chargeRemainder(
+    merchantId: string,
+    bookingId: string,
+  ): Promise<Record<string, unknown>> {
+    const booking = await bookingRepository.findDetailedById(merchantId, bookingId);
+    if (!booking) throw new AppError('Booking not found', 404);
+
+    if (booking.status !== 'ACTIVE') {
+      throw new AppError('Remainder can only be charged when booking is active', 422);
+    }
+
+    const remainder = (booking.total_price as number) - (booking.upfront_fee as number);
+    if (remainder <= 0) {
+      throw new AppError('Upfront fee covers the full amount — no remainder to charge', 422);
+    }
+
+    const existing = await paymentRepository.findRemainderByBookingId(bookingId);
+    if (existing) throw new AppError('Remainder payment has already been generated', 409);
+
+    const merchant = await merchantRepository.findById(merchantId);
+    if (!merchant) throw new AppError('Merchant not found', 404);
+
+    const payment = await paymentService.createPaymentLink(
+      merchantId,
+      bookingId,
+      remainder,
+      `${booking.asset_name as string} — remaining balance`,
+      booking.customer_email as string,
+      (booking.customer_phone as string) ?? '',
+      booking.customer_id as string,
+      merchant.slug,
+      'REMAINDER',
+    );
+
+    await notificationService.sendRemainderPayment(booking.customer_email as string, {
+      customerName: booking.customer_name as string,
+      merchantName: merchant.name,
+      assetName: booking.asset_name as string,
+      bookingId,
+      remainderAmount: remainder,
+      paymentLink: payment.payment_link ?? '',
+    });
+
     return (await bookingRepository.findDetailedById(merchantId, bookingId))!;
   },
 

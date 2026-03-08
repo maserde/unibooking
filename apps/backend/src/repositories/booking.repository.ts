@@ -188,12 +188,15 @@ export const bookingRepository = {
         au.identifier as unit_identifier, au.status as unit_status,
         a.name as asset_name, a.type as asset_type, a.price_unit,
         p.id as payment_id, p.payment_link, p.amount as payment_amount, p.status as payment_status,
-        p.mayar_transaction_id
+        p.mayar_transaction_id,
+        pr.id as remainder_payment_id, pr.payment_link as remainder_payment_link,
+        pr.amount as remainder_payment_amount, pr.status as remainder_payment_status
        FROM bookings b
        JOIN customers c ON c.id = b.customer_id
        JOIN asset_units au ON au.id = b.asset_unit_id
        JOIN assets a ON a.id = au.asset_id
-       LEFT JOIN payments p ON p.booking_id = b.id
+       LEFT JOIN payments p ON p.booking_id = b.id AND p.payment_type = 'UPFRONT'
+       LEFT JOIN payments pr ON pr.booking_id = b.id AND pr.payment_type = 'REMAINDER'
        WHERE b.id = ? AND b.merchant_id = ?`,
       [id, merchantId],
     );

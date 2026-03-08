@@ -1,4 +1,4 @@
-import type { MerchantUserRole, AssetType, PriceUnit, AssetUnitStatus, BookingStatus, PaymentStatus, DiscountType } from './enums';
+import type { MerchantUserRole, AssetType, PriceUnit, AssetUnitStatus, BookingStatus, PaymentStatus, PaymentType, DiscountType } from './enums';
 
 export interface Merchant {
   id: string;
@@ -100,6 +100,7 @@ export interface Payment {
   payment_link?: string | null;
   amount: number;
   status: PaymentStatus;
+  payment_type: PaymentType;
   created_at: Date;
   updated_at: Date;
 }

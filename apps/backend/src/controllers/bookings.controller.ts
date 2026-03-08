@@ -31,4 +31,9 @@ export const bookingsController = {
     );
     successResponse(res, booking);
   },
+
+  async chargeRemainder(req: Request, res: Response): Promise<void> {
+    const booking = await bookingService.chargeRemainder(req.merchantId!, req.params.id);
+    successResponse(res, booking);
+  },
 };

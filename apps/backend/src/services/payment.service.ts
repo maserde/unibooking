@@ -6,6 +6,7 @@ import { AppError } from '../middleware/error.middleware';
 import { logger } from '../config/logger';
 import { env, MAYAR_BASE_URL } from '../config/env';
 import type { Payment } from '../types/models';
+import type { PaymentType } from '../types/enums';
 
 export const paymentService = {
   async createPaymentLink(
@@ -17,6 +18,7 @@ export const paymentService = {
     customerPhone: string,
     customerId: string,
     merchantSlug: string,
+    paymentType: PaymentType = 'UPFRONT',
   ): Promise<Payment> {
     const apiKey = await encryptionService.getMerchantApiKey(merchantId);
     const magicToken = await magicLinkService.generateTokenForCustomer(customerId);
@@ -56,6 +58,7 @@ export const paymentService = {
       amount,
       mayarTransactionId,
       paymentLink,
+      paymentType,
     });
   },
 };

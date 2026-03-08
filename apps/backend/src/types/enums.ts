@@ -41,6 +41,12 @@ export const PaymentStatus = {
 } as const;
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
+export const PaymentType = {
+  UPFRONT: 'UPFRONT',
+  REMAINDER: 'REMAINDER',
+} as const;
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType];
+
 export const DiscountType = {
   PERCENTAGE: 'PERCENTAGE',
   FIXED_AMOUNT: 'FIXED_AMOUNT',

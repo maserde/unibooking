@@ -12,4 +12,7 @@ export const bookingsApi = {
 
   updateStatus: (id: string, status: BookingStatus) =>
     apiClient.patch<ApiResponse<BookingDetailed>>(`/merchant/bookings/${id}/status`, { status }),
+
+  chargeRemainder: (id: string) =>
+    apiClient.post<ApiResponse<BookingDetailed>>(`/merchant/bookings/${id}/charge-remainder`),
 }

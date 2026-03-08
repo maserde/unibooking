@@ -12,5 +12,6 @@ router.use(authMerchant);
 router.get('/', bookingsController.list);
 router.get('/:id', bookingsController.detail);
 router.patch('/:id/status', requireRole('OWNER', 'ADMIN', 'STAFF'), validate(updateBookingStatusSchema), bookingsController.updateStatus);
+router.post('/:id/charge-remainder', requireRole('OWNER', 'ADMIN'), bookingsController.chargeRemainder);
 
 export default router;

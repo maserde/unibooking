@@ -34,7 +34,7 @@
 
       <!-- Right: Payment + Actions -->
       <div class="space-y-4">
-        <AppCard title="Payment Status">
+        <AppCard title="Upfront Payment">
           <div class="flex items-center gap-2 mb-3">
             <AppBadge v-if="booking.payment_status" :status="booking.payment_status" type="payment" />
             <span v-else class="text-sm text-gray-500">No payment record</span>
@@ -46,6 +46,36 @@
               <dd><a :href="booking.payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Open</a></dd>
             </div>
           </dl>
+        </AppCard>
+
+        <!-- Remainder Payment -->
+        <AppCard title="Remaining Balance">
+          <template v-if="booking.remainder_payment_id">
+            <div class="flex items-center gap-2 mb-3">
+              <AppBadge :status="booking.remainder_payment_status ?? 'UNPAID'" type="payment" />
+            </div>
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd>{{ formatCurrency(booking.remainder_payment_amount ?? 0) }}</dd></div>
+              <div v-if="booking.remainder_payment_link" class="flex justify-between">
+                <dt class="text-gray-500">Payment Link</dt>
+                <dd><a :href="booking.remainder_payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Open</a></dd>
+              </div>
+            </dl>
+          </template>
+          <template v-else-if="canChargeRemainder">
+            <p class="text-sm text-gray-500 mb-3">
+              Remaining: <span class="font-semibold text-gray-900">{{ formatCurrency(remainderAmount) }}</span>
+            </p>
+            <AppButton size="sm" :loading="chargingRemainder" @click="chargeRemainder">
+              Generate Remainder Payment &amp; Notify Customer
+            </AppButton>
+            <AppAlert v-if="remainderError" type="error" :message="remainderError" class="mt-3" />
+          </template>
+          <template v-else>
+            <p class="text-sm text-gray-500">
+              {{ booking.upfront_fee >= booking.total_price ? 'Full payment was collected upfront.' : 'Available once booking is Active.' }}
+            </p>
+          </template>
         </AppCard>
 
         <AppCard title="Update Status">
@@ -88,6 +118,19 @@ const loading = ref(true)
 const booking = ref<BookingDetailed | null>(null)
 const updatingStatus = ref<BS | null>(null)
 const statusError = ref('')
+const chargingRemainder = ref(false)
+const remainderError = ref('')
+
+const remainderAmount = computed(() =>
+  booking.value ? Math.max(0, booking.value.total_price - booking.value.upfront_fee) : 0,
+)
+
+const canChargeRemainder = computed(() =>
+  !!booking.value &&
+  booking.value.status === 'ACTIVE' &&
+  remainderAmount.value > 0 &&
+  !booking.value.remainder_payment_id,
+)
 
 const transitionMap: Record<BS, { status: BS; label: string; variant: 'primary' | 'secondary' | 'danger' }[]> = {
   PENDING_PAYMENT: [
@@ -109,6 +152,21 @@ const transitionMap: Record<BS, { status: BS; label: string; variant: 'primary' 
 const availableTransitions = computed(() =>
   booking.value ? (transitionMap[booking.value.status] ?? []) : [],
 )
+
+async function chargeRemainder() {
+  if (!booking.value) return
+  chargingRemainder.value = true
+  remainderError.value = ''
+  try {
+    const res = await bookingsApi.chargeRemainder(booking.value.id)
+    booking.value = res.data.data
+  } catch (e) {
+    const err = e as { response?: { data?: { error?: string } } }
+    remainderError.value = err.response?.data?.error ?? 'Failed to generate remainder payment'
+  } finally {
+    chargingRemainder.value = false
+  }
+}
 
 async function updateStatus(status: BS) {
   if (!booking.value) return

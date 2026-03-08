@@ -29,6 +29,10 @@ export interface BookingDetailed extends Booking {
   payment_amount?: number | null
   payment_status?: string | null
   mayar_transaction_id?: string | null
+  remainder_payment_id?: string | null
+  remainder_payment_link?: string | null
+  remainder_payment_amount?: number | null
+  remainder_payment_status?: string | null
 }
 
 // Flat recent booking from dashboard service JOIN query

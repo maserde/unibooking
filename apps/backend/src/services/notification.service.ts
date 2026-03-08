@@ -116,6 +116,27 @@ export const notificationService = {
     });
   },
 
+  async sendRemainderPayment(
+    email: string,
+    details: {
+      customerName: string;
+      merchantName: string;
+      assetName: string;
+      bookingId: string;
+      remainderAmount: number;
+      paymentLink: string;
+    },
+  ): Promise<void> {
+    await sendMail(email, `Remaining Balance Due – ${details.merchantName}`, 'remainder-payment', {
+      customerName: details.customerName,
+      merchantName: details.merchantName,
+      assetName: details.assetName,
+      bookingId: details.bookingId,
+      remainderAmount: `Rp ${details.remainderAmount.toLocaleString('id-ID')}`,
+      paymentLink: details.paymentLink,
+    });
+  },
+
   async sendStaffInvitation(
     email: string,
     fullName: string,
