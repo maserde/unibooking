@@ -42,7 +42,7 @@
           <dl v-if="booking.payment_id" class="space-y-2 text-sm">
             <div class="flex justify-between"><dt class="text-gray-500">Jumlah</dt><dd>{{ formatCurrency(booking.payment_amount ?? 0) }}</dd></div>
             <div v-if="booking.payment_link" class="flex justify-between">
-              <dt class="text-gray-500">Tautan Pembayaran</dt>
+              <dt class="text-gray-500">Link Pembayaran</dt>
               <dd><a :href="booking.payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Buka</a></dd>
             </div>
           </dl>
@@ -57,7 +57,7 @@
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between"><dt class="text-gray-500">Jumlah</dt><dd>{{ formatCurrency(booking.remainder_payment_amount ?? 0) }}</dd></div>
               <div v-if="booking.remainder_payment_link" class="flex justify-between">
-                <dt class="text-gray-500">Tautan Pembayaran</dt>
+                <dt class="text-gray-500">Link Pembayaran</dt>
                 <dd><a :href="booking.remainder_payment_link" target="_blank" class="text-primary-600 hover:underline text-xs">Buka</a></dd>
               </div>
             </dl>
@@ -70,7 +70,7 @@
               <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Tunggu <strong>{{ cooldownRemaining }} detik</strong> sebelum membuat tautan pembayaran.</span>
+              <span>Tunggu <strong>{{ cooldownRemaining }} detik</strong> sebelum membuat link pembayaran.</span>
             </div>
             <AppButton size="sm" :loading="chargingRemainder" :disabled="cooldownRemaining > 0" @click="chargeRemainder">
               Buat Pembayaran Sisa
