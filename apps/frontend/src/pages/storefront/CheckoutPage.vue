@@ -1,8 +1,8 @@
 <template>
   <div class="max-w-xl mx-auto">
-    <RouterLink :to="`/store/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Back to catalog</RouterLink>
+    <RouterLink :to="`/store/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Kembali ke katalog</RouterLink>
 
-    <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-4">Book: {{ asset?.name }}</h2>
+    <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-4">Pesan: {{ asset?.name }}</h2>
 
     <!-- Step indicator -->
     <div class="flex items-center gap-2 mb-6">
@@ -41,38 +41,38 @@
 
     <!-- Step 1: Duration Selection -->
     <div v-if="step === 1" class="space-y-4">
-      <AppCard title="Select duration">
+      <AppCard title="Pilih durasi">
         <div class="space-y-4">
           <div>
-            <p class="text-xs text-gray-500 mb-1">Start time</p>
+            <p class="text-xs text-gray-500 mb-1">Waktu mulai</p>
             <p class="text-sm font-medium text-gray-900">
               {{ formatDateTime(booking.start_time) }}
-              <span class="text-xs text-gray-400">(now)</span>
+              <span class="text-xs text-gray-400">(sekarang)</span>
             </p>
           </div>
           <AppInput
             v-model="durationInput"
-            :label="`Duration (${durationLabel})`"
+            :label="`Durasi (${durationLabel})`"
             type="number"
             min="1"
             :error="durationError"
           />
           <div v-if="durationNum > 0">
-            <p class="text-xs text-gray-500 mb-1">End time</p>
+            <p class="text-xs text-gray-500 mb-1">Waktu selesai</p>
             <p class="text-sm font-medium text-gray-900">{{ formatDateTime(endTime) }}</p>
           </div>
         </div>
-        <AppButton class="mt-4 w-full" :loading="checkingAvailability" :disabled="checkAvailabilityDisabled" @click="checkAvailability">Check Availability</AppButton>
+        <AppButton class="mt-4 w-full" :loading="checkingAvailability" :disabled="checkAvailabilityDisabled" @click="checkAvailability">Cek Ketersediaan</AppButton>
       </AppCard>
 
-      <AppCard v-if="availabilityChecked" title="Price preview">
+      <AppCard v-if="availabilityChecked" title="Pratinjau harga">
         <div class="space-y-2 text-sm">
           <div class="flex justify-between">
-            <span class="text-gray-500">Duration</span>
-            <span>{{ units }} {{ asset?.price_unit === 'HOUR' ? 'hour(s)' : 'day(s)' }}</span>
+            <span class="text-gray-500">Durasi</span>
+            <span>{{ units }} {{ asset?.price_unit === 'HOUR' ? 'jam' : 'hari' }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500">Price per unit</span>
+            <span class="text-gray-500">Harga per satuan</span>
             <span>{{ asset ? formatCurrency(asset.base_price) : '—' }}</span>
           </div>
           <div class="flex justify-between font-semibold text-base border-t pt-2">
@@ -81,67 +81,67 @@
           </div>
         </div>
         <AppButton class="mt-4 w-full" :disabled="!isAvailable" @click="step = 2">
-          {{ isAvailable ? 'Continue' : 'Not Available' }}
+          {{ isAvailable ? 'Lanjutkan' : 'Tidak Tersedia' }}
         </AppButton>
-        <p v-if="!isAvailable" class="text-xs text-red-600 mt-2">No units available for the selected time range.</p>
+        <p v-if="!isAvailable" class="text-xs text-red-600 mt-2">Tidak ada unit tersedia untuk rentang waktu yang dipilih.</p>
       </AppCard>
     </div>
 
     <!-- Step 2: Customer Info -->
     <div v-else-if="step === 2" class="space-y-4">
-      <AppCard title="Your information">
+      <AppCard title="Informasi Anda">
         <div class="space-y-4">
-          <AppInput v-model="customer.name" label="Full name" placeholder="e.g. John Doe" :error="customerErrors.name" />
-          <AppInput v-model="customer.email" label="Email" type="email" placeholder="e.g. john@example.com" :error="customerErrors.email" />
-          <AppInput v-model="customer.phone" label="Phone number" type="tel" placeholder="e.g. +62 812 3456 7890" />
+          <AppInput v-model="customer.name" label="Nama lengkap" placeholder="misal Budi Santoso" :error="customerErrors.name" />
+          <AppInput v-model="customer.email" label="Email" type="email" placeholder="misal budi@email.com" :error="customerErrors.email" />
+          <AppInput v-model="customer.phone" label="Nomor telepon" type="tel" placeholder="misal +62 812 3456 7890" />
         </div>
       </AppCard>
 
-      <AppCard title="Promo code">
+      <AppCard title="Kode promo">
         <div class="flex gap-2">
-          <AppInput v-model="promoCode" placeholder="Enter code" class="flex-1" />
-          <AppButton variant="secondary" :loading="validatingPromo" @click="validatePromo">Apply</AppButton>
+          <AppInput v-model="promoCode" placeholder="Masukkan kode" class="flex-1" />
+          <AppButton variant="secondary" :loading="validatingPromo" @click="validatePromo">Terapkan</AppButton>
         </div>
         <AppAlert v-if="promoError" type="error" :message="promoError" class="mt-2" />
         <div v-if="promoResult" class="mt-2 text-sm text-green-700 font-medium">
-          Promo applied! Discount: {{ formatCurrency(promoResult.discount_amount) }}
+          Promo diterapkan! Diskon: {{ formatCurrency(promoResult.discount_amount) }}
         </div>
       </AppCard>
 
-      <AppCard title="Price breakdown">
+      <AppCard title="Rincian harga">
         <div class="space-y-2 text-sm">
           <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>{{ formatCurrency(subtotal) }}</span></div>
           <div v-if="promoResult" class="flex justify-between text-green-700">
-            <span>Discount</span><span>-{{ formatCurrency(promoResult.discount_amount) }}</span>
+            <span>Diskon</span><span>-{{ formatCurrency(promoResult.discount_amount) }}</span>
           </div>
           <div class="flex justify-between font-semibold border-t pt-2"><span>Total</span><span>{{ formatCurrency(total) }}</span></div>
           <div class="flex justify-between text-gray-500">
-            <span>Upfront fee ({{ upfrontPct }}%)</span>
+            <span>Biaya DP ({{ upfrontPct }}%)</span>
             <span>{{ formatCurrency(upfrontFee) }}</span>
           </div>
         </div>
         <div class="flex gap-3 mt-4">
-          <AppButton variant="secondary" @click="step = 1">Back</AppButton>
-          <AppButton class="flex-1" @click="goToConfirm">Continue</AppButton>
+          <AppButton variant="secondary" @click="step = 1">Kembali</AppButton>
+          <AppButton class="flex-1" @click="goToConfirm">Lanjutkan</AppButton>
         </div>
       </AppCard>
     </div>
 
     <!-- Step 3: Confirm -->
     <div v-else class="space-y-4">
-      <AppCard title="Booking summary">
+      <AppCard title="Ringkasan pemesanan">
         <dl class="space-y-2 text-sm">
-          <div class="flex justify-between"><dt class="text-gray-500">Asset</dt><dd>{{ asset?.name }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500">Start</dt><dd>{{ formatDateTime(booking.start_time) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500">End</dt><dd>{{ formatDateTime(endTime) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd>{{ customer.name }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Aset</dt><dd>{{ asset?.name }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Mulai</dt><dd>{{ formatDateTime(booking.start_time) }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Selesai</dt><dd>{{ formatDateTime(endTime) }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Nama</dt><dd>{{ customer.name }}</dd></div>
           <div class="flex justify-between"><dt class="text-gray-500">Email</dt><dd>{{ customer.email }}</dd></div>
           <div class="flex justify-between font-semibold border-t pt-2"><dt>Total</dt><dd>{{ formatCurrency(total) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500">Pay now</dt><dd>{{ formatCurrency(upfrontFee) }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Bayar sekarang</dt><dd>{{ formatCurrency(upfrontFee) }}</dd></div>
         </dl>
         <div class="flex gap-3 mt-4">
-          <AppButton variant="secondary" @click="step = 2">Back</AppButton>
-          <AppButton class="flex-1" :loading="submitting" @click="submitBooking">Pay Now</AppButton>
+          <AppButton variant="secondary" @click="step = 2">Kembali</AppButton>
+          <AppButton class="flex-1" :loading="submitting" @click="submitBooking">Bayar Sekarang</AppButton>
         </div>
       </AppCard>
     </div>
@@ -191,7 +191,7 @@ const durationNum = computed(() => {
   const n = parseInt(durationInput.value, 10)
   return isNaN(n) || n <= 0 ? 0 : n
 })
-const durationLabel = computed(() => priceUnit.value === 'HOUR' ? 'hours' : 'days')
+const durationLabel = computed(() => priceUnit.value === 'HOUR' ? 'jam' : 'hari')
 const endTime = computed(() => {
   if (!booking.start_time || durationNum.value <= 0) return ''
   const unitMs = priceUnit.value === 'HOUR' ? 3600000 : 86400000
@@ -226,7 +226,7 @@ const upfrontFee = computed(() => Math.ceil((total.value * upfrontPct.value) / 1
 
 async function checkAvailability() {
   durationError.value = ''
-  if (durationNum.value <= 0) { durationError.value = 'Enter a valid duration'; return }
+  if (durationNum.value <= 0) { durationError.value = 'Masukkan durasi yang valid'; return }
 
   checkingAvailability.value = true
   errorMsg.value = ''
@@ -240,7 +240,7 @@ async function checkAvailability() {
     checkedDuration.value = durationNum.value
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    errorMsg.value = err.response?.data?.error ?? 'Failed to check availability'
+    errorMsg.value = err.response?.data?.error ?? 'Gagal mengecek ketersediaan'
   } finally {
     checkingAvailability.value = false
   }
@@ -257,7 +257,7 @@ async function validatePromo() {
     promoResult.value = res.data.data
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    promoError.value = err.response?.data?.error ?? 'Invalid promo code'
+    promoError.value = err.response?.data?.error ?? 'Kode promo tidak valid'
   } finally {
     validatingPromo.value = false
   }
@@ -266,8 +266,8 @@ async function validatePromo() {
 function goToConfirm() {
   customerErrors.name = ''
   customerErrors.email = ''
-  if (!customer.name) { customerErrors.name = 'Required'; return }
-  if (!customer.email) { customerErrors.email = 'Required'; return }
+  if (!customer.name) { customerErrors.name = 'Wajib diisi'; return }
+  if (!customer.email) { customerErrors.email = 'Wajib diisi'; return }
   step.value = 3
 }
 
@@ -290,7 +290,7 @@ async function submitBooking() {
     window.location.href = payment_link
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    errorMsg.value = err.response?.data?.error ?? 'Failed to create booking'
+    errorMsg.value = err.response?.data?.error ?? 'Gagal membuat pemesanan'
     submitting.value = false
   }
 }

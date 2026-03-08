@@ -1,22 +1,22 @@
 <template>
   <div class="space-y-6">
     <div class="flex items-center gap-3">
-      <RouterLink to="/dashboard/customers" class="text-sm text-gray-500 hover:text-gray-700">← Customers</RouterLink>
+      <RouterLink to="/dashboard/customers" class="text-sm text-gray-500 hover:text-gray-700">← Pelanggan</RouterLink>
       <h1 class="text-2xl font-semibold text-gray-900">{{ customer?.name }}</h1>
     </div>
 
     <AppSpinner v-if="loading" class="mx-auto" size="lg" />
 
     <div v-else-if="customer" class="space-y-6">
-      <AppCard title="Customer Info">
+      <AppCard title="Info Pelanggan">
         <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
           <div><dt class="text-gray-500">Email</dt><dd class="font-medium">{{ customer.email }}</dd></div>
-          <div><dt class="text-gray-500">Phone</dt><dd class="font-medium">{{ customer.phone_number ?? '—' }}</dd></div>
-          <div><dt class="text-gray-500">Joined</dt><dd class="font-medium">{{ formatDate(customer.created_at) }}</dd></div>
+          <div><dt class="text-gray-500">Telepon</dt><dd class="font-medium">{{ customer.phone_number ?? '—' }}</dd></div>
+          <div><dt class="text-gray-500">Bergabung</dt><dd class="font-medium">{{ formatDate(customer.created_at) }}</dd></div>
         </dl>
       </AppCard>
 
-      <AppCard title="Booking History" :no-padding="true">
+      <AppCard title="Riwayat Pemesanan" :no-padding="true">
         <AppTable :columns="columns" :rows="tableRows" :loading="false" clickable @row-click="goToBooking">
           <template #cell-status="{ row }">
             <AppBadge :status="String((row as Record<string, unknown>).status)" type="booking" />
@@ -24,7 +24,7 @@
           <template #cell-start_time="{ row }">{{ formatDateTime(String((row as Record<string, unknown>).start_time)) }}</template>
           <template #cell-total_price="{ row }">{{ formatCurrency(Number((row as Record<string, unknown>).total_price)) }}</template>
           <template #empty>
-            <AppEmptyState title="No bookings" description="This customer has no bookings." />
+            <AppEmptyState title="Tidak ada pemesanan" description="Pelanggan ini belum memiliki pemesanan." />
           </template>
         </AppTable>
       </AppCard>
@@ -52,7 +52,7 @@ const bookings = ref<Booking[]>([])
 
 const columns = [
   { key: 'shortId', label: 'ID' },
-  { key: 'start_time', label: 'Start' },
+  { key: 'start_time', label: 'Mulai' },
   { key: 'status', label: 'Status' },
   { key: 'total_price', label: 'Total' },
 ]

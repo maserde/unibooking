@@ -3,7 +3,7 @@
     <p class="text-sm text-gray-600">{{ description }}</p>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Cancel</AppButton>
+        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Batal</AppButton>
         <AppButton :variant="danger ? 'danger' : 'primary'" :loading="loading" @click="confirm">
           {{ confirmLabel }}
         </AppButton>
@@ -25,7 +25,7 @@ withDefaults(
     danger?: boolean
     loading?: boolean
   }>(),
-  { confirmLabel: 'Confirm', danger: false, loading: false },
+  { confirmLabel: 'Konfirmasi', danger: false, loading: false },
 )
 
 const emit = defineEmits<{

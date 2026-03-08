@@ -1,26 +1,26 @@
 <template>
-  <AppModal :model-value="modelValue" :title="asset ? 'Edit Asset' : 'Add Asset'" size="md" @update:model-value="emit('update:modelValue', $event)">
+  <AppModal :model-value="modelValue" :title="asset ? 'Edit Aset' : 'Tambah Aset'" size="md" @update:model-value="emit('update:modelValue', $event)">
     <AppAlert v-if="error" type="error" :message="error" class="mb-4" />
     <form class="space-y-4" @submit.prevent="save">
-      <AppSelect v-model="form.type" label="Type" :options="typeOptions" :error="errors.type" />
-      <AppInput v-model="form.name" label="Name" :error="errors.name" />
-      <AppInput v-model="form.base_price" label="Base price (IDR)" type="number" :error="errors.base_price" />
-      <AppSelect v-model="form.price_unit" label="Price unit" :options="unitOptions" />
+      <AppSelect v-model="form.type" label="Tipe" :options="typeOptions" :error="errors.type" />
+      <AppInput v-model="form.name" label="Nama" :error="errors.name" />
+      <AppInput v-model="form.base_price" label="Harga dasar (IDR)" type="number" :error="errors.base_price" />
+      <AppSelect v-model="form.price_unit" label="Satuan harga" :options="unitOptions" />
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Attributes (optional)</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Atribut (opsional)</label>
         <div v-for="(_attr, i) in attributes" :key="i" class="flex gap-2 mb-2">
-          <AppInput v-model="attributes[i].key" placeholder="Key" class="flex-1" />
-          <AppInput v-model="attributes[i].value" placeholder="Value" class="flex-1" />
+          <AppInput v-model="attributes[i].key" placeholder="Kunci" class="flex-1" />
+          <AppInput v-model="attributes[i].value" placeholder="Nilai" class="flex-1" />
           <AppButton variant="ghost" size="sm" type="button" @click="attributes.splice(i, 1)">✕</AppButton>
         </div>
         <AppButton variant="secondary" size="sm" type="button" @click="attributes.push({ key: '', value: '' })">
-          + Add attribute
+          + Tambah atribut
         </AppButton>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Photos (up to 3)</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Foto (maksimal 3)</label>
         <div class="flex flex-wrap gap-3">
           <!-- Existing images -->
           <div v-for="img in existingImages" :key="img.id" class="relative w-24 h-24">
@@ -50,7 +50,7 @@
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="text-xs">Add photo</span>
+            <span class="text-xs">Tambah foto</span>
           </button>
         </div>
         <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onFileSelect" />
@@ -58,8 +58,8 @@
     </form>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Cancel</AppButton>
-        <AppButton :loading="saving" @click="save">{{ asset ? 'Save changes' : 'Create asset' }}</AppButton>
+        <AppButton variant="secondary" @click="emit('update:modelValue', false)">Batal</AppButton>
+        <AppButton :loading="saving" @click="save">{{ asset ? 'Simpan perubahan' : 'Buat aset' }}</AppButton>
       </div>
     </template>
   </AppModal>
@@ -83,8 +83,8 @@ const emit = defineEmits<{ 'update:modelValue': [v: boolean]; saved: [] }>()
 const { extractError } = useApiError()
 const toast = useToast()
 
-const typeOptions = [{ value: 'ROOM', label: 'Room' }, { value: 'PHYSICAL_ITEM', label: 'Physical Item' }]
-const unitOptions = [{ value: 'HOUR', label: 'Per hour' }, { value: 'DAY', label: 'Per day' }]
+const typeOptions = [{ value: 'ROOM', label: 'Ruangan' }, { value: 'PHYSICAL_ITEM', label: 'Barang Fisik' }]
+const unitOptions = [{ value: 'HOUR', label: 'Per jam' }, { value: 'DAY', label: 'Per hari' }]
 
 const form = reactive({ type: 'ROOM' as AssetType, name: '', base_price: '', price_unit: 'HOUR' as PriceUnit })
 const errors = reactive({ type: '', name: '', base_price: '' })
@@ -147,8 +147,8 @@ function removePendingFile(index: number) {
 async function save() {
   errors.name = ''
   errors.base_price = ''
-  if (!form.name) { errors.name = 'Required'; return }
-  if (!form.base_price) { errors.base_price = 'Required'; return }
+  if (!form.name) { errors.name = 'Wajib diisi'; return }
+  if (!form.base_price) { errors.base_price = 'Wajib diisi'; return }
 
   const attrsObj = Object.fromEntries(attributes.value.filter((a) => a.key).map((a) => [a.key, a.value]))
 
@@ -164,7 +164,7 @@ async function save() {
         attributes: attrsObj,
       })
       assetId = props.asset.id
-      toast.success('Asset updated')
+      toast.success('Aset diperbarui')
     } else {
       const res = await assetsApi.create({
         type: form.type,
@@ -174,7 +174,7 @@ async function save() {
         attributes: attrsObj,
       })
       assetId = res.data.data.id
-      toast.success('Asset created')
+      toast.success('Aset dibuat')
     }
 
     for (const file of pendingFiles.value) {

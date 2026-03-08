@@ -1,24 +1,24 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold text-gray-900 mb-6">Create your account</h2>
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Buat akun Anda</h2>
 
     <div v-if="success" class="text-center py-4">
       <div class="text-green-600 text-4xl mb-3">✓</div>
-      <h3 class="font-medium text-gray-900">Check your email</h3>
-      <p class="text-sm text-gray-500 mt-1">We sent a verification link to {{ form.email }}</p>
+      <h3 class="font-medium text-gray-900">Cek email Anda</h3>
+      <p class="text-sm text-gray-500 mt-1">Kami telah mengirim tautan verifikasi ke {{ form.email }}</p>
     </div>
 
     <template v-else>
       <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
       <form class="space-y-4" @submit.prevent="handleRegister">
-        <AppInput v-model="form.full_name" label="Full name" autocomplete="name" :error="errors.full_name" />
+        <AppInput v-model="form.full_name" label="Nama lengkap" autocomplete="name" :error="errors.full_name" />
         <AppInput v-model="form.email" label="Email" type="email" autocomplete="email" :error="errors.email" />
-        <AppInput v-model="form.password" label="Password" type="password" autocomplete="new-password" hint="At least 8 characters" :error="errors.password" />
-        <AppButton type="submit" class="w-full" :loading="loading">Create account</AppButton>
+        <AppInput v-model="form.password" label="Kata Sandi" type="password" autocomplete="new-password" hint="Minimal 8 karakter" :error="errors.password" />
+        <AppButton type="submit" class="w-full" :loading="loading">Buat akun</AppButton>
       </form>
       <p class="mt-4 text-sm text-center text-gray-600">
-        Already have an account?
-        <RouterLink to="/login" class="text-primary-600 hover:underline">Sign in</RouterLink>
+        Sudah punya akun?
+        <RouterLink to="/login" class="text-primary-600 hover:underline">Masuk</RouterLink>
       </p>
     </template>
   </div>
@@ -47,9 +47,9 @@ async function handleRegister() {
   errors.password = ''
   errorMsg.value = ''
 
-  if (!form.full_name) { errors.full_name = 'Name is required'; return }
-  if (!form.email) { errors.email = 'Email is required'; return }
-  if (form.password.length < 8) { errors.password = 'Password must be at least 8 characters'; return }
+  if (!form.full_name) { errors.full_name = 'Nama wajib diisi'; return }
+  if (!form.email) { errors.email = 'Email wajib diisi'; return }
+  if (form.password.length < 8) { errors.password = 'Kata sandi minimal 8 karakter'; return }
 
   loading.value = true
   try {

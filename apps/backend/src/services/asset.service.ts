@@ -32,26 +32,26 @@ export const assetService = {
     data: Partial<Pick<Asset, 'name' | 'base_price' | 'price_unit' | 'attributes'>>,
   ): Promise<Asset> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
     await assetRepository.update(merchantId, assetId, data);
     return (await assetRepository.findById(merchantId, assetId))!;
   },
 
   async deleteAsset(merchantId: string, assetId: string): Promise<void> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
     await assetRepository.delete(merchantId, assetId);
   },
 
   async listUnits(merchantId: string, assetId: string): Promise<AssetUnit[]> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
     return assetUnitRepository.findByAssetId(assetId);
   },
 
   async addUnit(merchantId: string, assetId: string, identifier: string): Promise<AssetUnit> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
     return assetUnitRepository.create(assetId, identifier);
   },
 
@@ -61,7 +61,7 @@ export const assetService = {
     data: Partial<Pick<AssetUnit, 'identifier' | 'status'>>,
   ): Promise<AssetUnit> {
     const belongs = await assetUnitRepository.belongsToMerchant(unitId, merchantId);
-    if (!belongs) throw new AppError('Unit not found', 404);
+    if (!belongs) throw new AppError('Unit tidak ditemukan', 404);
 
     // Warn if setting to MAINTENANCE and has future CONFIRMED bookings
     if (data.status === 'MAINTENANCE') {
@@ -75,16 +75,16 @@ export const assetService = {
 
   async deleteUnit(merchantId: string, unitId: string): Promise<void> {
     const belongs = await assetUnitRepository.belongsToMerchant(unitId, merchantId);
-    if (!belongs) throw new AppError('Unit not found', 404);
+    if (!belongs) throw new AppError('Unit tidak ditemukan', 404);
     await assetUnitRepository.delete(unitId);
   },
 
   async uploadImage(merchantId: string, assetId: string, buffer: Buffer): Promise<AssetImage> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
 
     const count = await assetImageRepository.countByAssetId(assetId);
-    if (count >= 3) throw new AppError('Maximum 3 images per asset', 422);
+    if (count >= 3) throw new AppError('Maksimal 3 gambar per aset', 422);
 
     const imageId = generateUuid();
     const { s3Key, url } = await storageService.uploadImage(assetId, imageId, buffer);
@@ -93,10 +93,10 @@ export const assetService = {
 
   async deleteImage(merchantId: string, assetId: string, imageId: string): Promise<void> {
     const asset = await assetRepository.findById(merchantId, assetId);
-    if (!asset) throw new AppError('Asset not found', 404);
+    if (!asset) throw new AppError('Aset tidak ditemukan', 404);
 
     const image = await assetImageRepository.findById(imageId);
-    if (!image || image.asset_id !== assetId) throw new AppError('Image not found', 404);
+    if (!image || image.asset_id !== assetId) throw new AppError('Gambar tidak ditemukan', 404);
 
     await storageService.deleteFile(image.s3_key);
     await assetImageRepository.delete(imageId);

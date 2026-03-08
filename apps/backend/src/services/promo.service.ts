@@ -19,7 +19,7 @@ export const promoService = {
     data: Omit<PromoCode, 'id' | 'merchant_id' | 'created_at' | 'updated_at'>,
   ): Promise<PromoCode> {
     const existing = await promoCodeRepository.findByCode(merchantId, data.code);
-    if (existing) throw new AppError('Promo code already exists', 409);
+    if (existing) throw new AppError('Kode promo sudah ada', 409);
     return promoCodeRepository.create(merchantId, data);
   },
 
@@ -29,14 +29,14 @@ export const promoService = {
     data: Partial<Omit<PromoCode, 'id' | 'merchant_id' | 'created_at' | 'updated_at'>>,
   ): Promise<PromoCode> {
     const promo = await promoCodeRepository.findById(merchantId, promoId);
-    if (!promo) throw new AppError('Promo code not found', 404);
+    if (!promo) throw new AppError('Kode promo tidak ditemukan', 404);
     await promoCodeRepository.update(merchantId, promoId, data);
     return (await promoCodeRepository.findById(merchantId, promoId))!;
   },
 
   async deletePromo(merchantId: string, promoId: string): Promise<void> {
     const promo = await promoCodeRepository.findById(merchantId, promoId);
-    if (!promo) throw new AppError('Promo code not found', 404);
+    if (!promo) throw new AppError('Kode promo tidak ditemukan', 404);
     await promoCodeRepository.delete(merchantId, promoId);
   },
 
@@ -47,28 +47,28 @@ export const promoService = {
     customerId?: string,
   ): Promise<PromoValidationResult> {
     const promo = await promoCodeRepository.findByCode(merchantId, code);
-    if (!promo) throw new AppError('Promo code not found', 404);
+    if (!promo) throw new AppError('Kode promo tidak ditemukan', 404);
 
     // 1. Active check
-    if (!promo.is_active) throw new AppError('Promo code is not active', 422);
+    if (!promo.is_active) throw new AppError('Kode promo tidak aktif', 422);
 
     // 2. Validity period
     const now = new Date();
     if (now < promo.valid_from || now > promo.valid_until) {
-      throw new AppError('Promo code is expired or not yet valid', 422);
+      throw new AppError('Kode promo sudah kedaluwarsa atau belum berlaku', 422);
     }
 
     // 3. Total quota
     if (promo.max_usage !== null && promo.max_usage !== undefined) {
       const used = await bookingRepository.countPromoUsage(promo.id);
-      if (used >= promo.max_usage) throw new AppError('Promo code quota exceeded', 422);
+      if (used >= promo.max_usage) throw new AppError('Kuota kode promo sudah habis', 422);
     }
 
     // 4. Per-customer quota
     if (customerId && promo.max_usage_per_customer !== null && promo.max_usage_per_customer !== undefined) {
       const customerUsed = await bookingRepository.countPromoUsageByCustomer(promo.id, customerId);
       if (customerUsed >= promo.max_usage_per_customer) {
-        throw new AppError('You have reached the usage limit for this promo code', 422);
+        throw new AppError('Anda sudah mencapai batas penggunaan kode promo ini', 422);
       }
     }
 
@@ -76,7 +76,7 @@ export const promoService = {
     if (promo.min_transaction_amount !== null && promo.min_transaction_amount !== undefined) {
       if (totalPrice < promo.min_transaction_amount) {
         throw new AppError(
-          `Minimum transaction amount is Rp ${promo.min_transaction_amount.toLocaleString()}`,
+          `Minimum transaksi adalah Rp ${promo.min_transaction_amount.toLocaleString('id-ID')}`,
           422,
         );
       }

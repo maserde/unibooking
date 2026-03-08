@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Booking Confirmed</title>
+  <title>Pemesanan Dikonfirmasi</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -24,7 +24,7 @@
           <!-- Status banner -->
           <tr>
             <td style="background-color:#f0fdf4;border-bottom:1px solid #bbf7d0;padding:14px 40px;text-align:center;">
-              <p style="margin:0;font-size:13px;font-weight:600;color:#166534;">✅ Booking Confirmed — Your reservation is secured</p>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#166534;">✅ Pemesanan Dikonfirmasi — Reservasi Anda telah diamankan</p>
             </td>
           </tr>
 
@@ -32,23 +32,23 @@
           <tr>
             <td style="background-color:#ffffff;padding:40px;">
 
-              <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Your booking is confirmed!</h2>
+              <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Pemesanan Anda dikonfirmasi!</h2>
               <p style="margin:0 0 28px;font-size:15px;color:#6b7280;line-height:1.6;">
-                Hi <strong style="color:#111827;">{{customerName}}</strong>, great news! Your payment has been processed and your booking is now confirmed. See you there!
+                Hai <strong style="color:#111827;">{{customerName}}</strong>, kabar baik! Pembayaran Anda telah diproses dan pemesanan Anda telah dikonfirmasi. Sampai jumpa!
               </p>
 
               <!-- Booking details -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 28px;">
                 <tr>
                   <td style="background-color:#f8fafc;padding:12px 20px;border-bottom:1px solid #e5e7eb;">
-                    <p style="margin:0;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.8px;">Booking Details</p>
+                    <p style="margin:0;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.8px;">Detail Pemesanan</p>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:0 20px;">
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;width:45%;">Booking ID</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;width:45%;">ID Pemesanan</td>
                         <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-size:13px;font-family:monospace;">{{bookingId}}</td>
                       </tr>
                       <tr>
@@ -56,11 +56,11 @@
                         <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;font-weight:600;">{{assetName}}</td>
                       </tr>
                       <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;">From</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;">Dari</td>
                         <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;">{{startTime}}</td>
                       </tr>
                       <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;">Until</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:13px;">Sampai</td>
                         <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;">{{endTime}}</td>
                       </tr>
                       <tr>
@@ -68,7 +68,7 @@
                         <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;font-weight:600;">{{totalPrice}}</td>
                       </tr>
                       <tr>
-                        <td style="padding:14px 0;color:#6b7280;font-size:13px;">Paid (upfront)</td>
+                        <td style="padding:14px 0;color:#6b7280;font-size:13px;">Dibayar (DP)</td>
                         <td style="padding:14px 0;color:#16a34a;font-size:15px;font-weight:700;">{{upfrontFee}}</td>
                       </tr>
                     </table>
@@ -81,7 +81,7 @@
                 <tr>
                   <td style="background-color:#eef2ff;border-radius:8px;padding:16px 20px;">
                     <p style="margin:0;font-size:13px;color:#4338ca;line-height:1.6;">
-                      💡 <strong>Keep this email</strong> as your booking reference. If you need to make changes, please contact <strong>{{merchantName}}</strong> directly.
+                      💡 <strong>Simpan email ini</strong> sebagai referensi pemesanan Anda. Jika perlu mengubah sesuatu, silakan hubungi <strong>{{merchantName}}</strong> langsung.
                     </p>
                   </td>
                 </tr>
@@ -95,7 +95,7 @@
             <td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.6;">
                 © BookingAja · {{merchantName}}<br />
-                You received this email because you completed a booking.
+                Anda menerima email ini karena Anda menyelesaikan pemesanan.
               </p>
             </td>
           </tr>

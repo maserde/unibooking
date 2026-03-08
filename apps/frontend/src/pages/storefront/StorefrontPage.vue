@@ -6,11 +6,11 @@
 
     <div v-else-if="catalog">
       <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-900">Catalog</h2>
+        <h2 class="text-xl font-semibold text-gray-900">Katalog</h2>
         <p v-if="catalog.merchant.address" class="text-sm text-gray-500 mt-1">{{ catalog.merchant.address }}</p>
       </div>
 
-      <AppEmptyState v-if="catalog.catalog.length === 0" title="No assets available" description="Check back later." />
+      <AppEmptyState v-if="catalog.catalog.length === 0" title="Tidak ada aset tersedia" description="Kunjungi kembali nanti." />
 
       <template v-else>
         <!-- Search input -->
@@ -23,7 +23,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search assets..."
+            placeholder="Cari aset..."
             class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
           />
         </div>
@@ -31,8 +31,8 @@
         <!-- No search results -->
         <AppEmptyState
           v-if="filteredCatalog.length === 0"
-          title="No matching assets"
-          :description="`No assets found for &quot;${searchQuery}&quot;`"
+          title="Tidak ada aset yang cocok"
+          :description="`Tidak ditemukan aset untuk &quot;${searchQuery}&quot;`"
         />
 
         <!-- Catalog grid -->
@@ -66,7 +66,7 @@
                 {{ formatCurrency(asset.base_price) }}<span class="text-sm font-normal text-gray-500"> / {{ asset.price_unit }}</span>
               </p>
               <p class="text-xs text-gray-500 mt-2">
-                {{ asset.available_units_count }} unit{{ asset.available_units_count !== 1 ? 's' : '' }} available
+                {{ asset.available_units_count }} unit tersedia
               </p>
             </div>
           </div>
@@ -115,7 +115,7 @@ onMounted(async () => {
     storefrontStore.setMerchant(res.data.data.merchant.name, res.data.data.merchant.logo_url)
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
-    errorMsg.value = err.response?.data?.error ?? 'Failed to load catalog'
+    errorMsg.value = err.response?.data?.error ?? 'Gagal memuat katalog'
   } finally {
     loading.value = false
   }

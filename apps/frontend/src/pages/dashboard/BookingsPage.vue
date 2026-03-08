@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-semibold text-gray-900">Bookings</h1>
+    <h1 class="text-2xl font-semibold text-gray-900">Pemesanan</h1>
 
     <!-- Filters -->
     <div class="flex flex-wrap gap-3">
@@ -22,7 +22,7 @@
       <input
         v-model="search"
         type="search"
-        placeholder="Search by customer name or ID…"
+        placeholder="Cari berdasarkan nama pelanggan atau ID…"
         class="ml-auto px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64"
       />
     </div>
@@ -37,7 +37,7 @@
         <template #cell-total_price="{ row }">{{ formatCurrency(Number((row as Record<string, unknown>).total_price)) }}</template>
         <template #cell-upfront_fee="{ row }">{{ formatCurrency(Number((row as Record<string, unknown>).upfront_fee)) }}</template>
         <template #empty>
-          <AppEmptyState title="No bookings" description="No bookings match your filters." />
+          <AppEmptyState title="Tidak ada pemesanan" description="Tidak ada pemesanan yang sesuai filter." />
         </template>
       </AppTable>
       <AppPagination :page="page" :page-count="pageCount" :total="total" @update:page="changePage" />
@@ -69,22 +69,22 @@ const search = ref('')
 const debouncedSearch = useDebounce(search, 300)
 
 const statusTabs = [
-  { value: '', label: 'All' },
-  { value: BookingStatus.PENDING_PAYMENT, label: 'Pending Payment' },
-  { value: BookingStatus.CONFIRMED, label: 'Confirmed' },
-  { value: BookingStatus.ACTIVE, label: 'Active' },
-  { value: BookingStatus.COMPLETED, label: 'Completed' },
-  { value: BookingStatus.CANCELLED, label: 'Cancelled' },
+  { value: '', label: 'Semua' },
+  { value: BookingStatus.PENDING_PAYMENT, label: 'Menunggu Pembayaran' },
+  { value: BookingStatus.CONFIRMED, label: 'Dikonfirmasi' },
+  { value: BookingStatus.ACTIVE, label: 'Aktif' },
+  { value: BookingStatus.COMPLETED, label: 'Selesai' },
+  { value: BookingStatus.CANCELLED, label: 'Dibatalkan' },
 ]
 
 const columns = [
   { key: 'shortId', label: 'ID' },
-  { key: 'customer_name', label: 'Customer' },
-  { key: 'start_time', label: 'Start' },
-  { key: 'end_time', label: 'End' },
+  { key: 'customer_name', label: 'Pelanggan' },
+  { key: 'start_time', label: 'Mulai' },
+  { key: 'end_time', label: 'Selesai' },
   { key: 'status', label: 'Status' },
   { key: 'total_price', label: 'Total' },
-  { key: 'upfront_fee', label: 'Upfront' },
+  { key: 'upfront_fee', label: 'DP' },
 ]
 
 const tableRows = computed(() =>

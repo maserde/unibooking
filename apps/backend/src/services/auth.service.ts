@@ -15,7 +15,7 @@ export const authService = {
     fullName: string;
   }): Promise<{ message: string }> {
     const existing = await merchantUserRepository.findByEmail(data.email);
-    if (existing) throw new AppError('Email already registered', 409);
+    if (existing) throw new AppError('Email sudah terdaftar', 409);
 
     // Create merchant with slug derived from owner name (can be updated later)
     let slug = generateSlug(data.fullName);
@@ -40,23 +40,23 @@ export const authService = {
 
     await notificationService.sendVerificationEmail(data.email, verificationToken, data.fullName);
 
-    return { message: 'Registration successful. Please verify your email.' };
+    return { message: 'Pendaftaran berhasil. Silakan verifikasi email Anda.' };
   },
 
   async verifyEmail(token: string): Promise<{ message: string }> {
     const user = await merchantUserRepository.findByVerificationToken(token);
-    if (!user) throw new AppError('Invalid or expired verification token', 400);
+    if (!user) throw new AppError('Token verifikasi tidak valid atau kedaluwarsa', 400);
     await merchantUserRepository.markEmailVerified(user.id);
-    return { message: 'Email verified successfully. You can now log in.' };
+    return { message: 'Email berhasil diverifikasi. Silakan masuk.' };
   },
 
   async login(email: string, password: string): Promise<{ token: string; user: object }> {
     const user = await merchantUserRepository.findByEmail(email);
-    if (!user) throw new AppError('Invalid email or password', 401);
-    if (!user.is_email_verified) throw new AppError('Please verify your email before logging in', 403);
+    if (!user) throw new AppError('Email atau kata sandi salah', 401);
+    if (!user.is_email_verified) throw new AppError('Silakan verifikasi email Anda sebelum masuk', 403);
 
     const valid = await comparePassword(password, user.password_hash);
-    if (!valid) throw new AppError('Invalid email or password', 401);
+    if (!valid) throw new AppError('Email atau kata sandi salah', 401);
 
     const token = signMerchantToken({
       sub: user.id,

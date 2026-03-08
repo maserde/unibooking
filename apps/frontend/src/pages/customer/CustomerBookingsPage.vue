@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <h2 class="text-lg font-semibold text-gray-900">Customer Portal</h2>
+    <h2 class="text-lg font-semibold text-gray-900">Portal Pelanggan</h2>
 
     <div class="flex gap-2 flex-wrap">
       <button
@@ -21,7 +21,7 @@
     <AppSpinner v-if="loading" class="mx-auto" size="lg" />
 
     <div v-else-if="filtered.length === 0">
-      <AppEmptyState title="No bookings" description="You have no bookings yet." />
+      <AppEmptyState title="Tidak ada pemesanan" description="Anda belum memiliki pemesanan." />
     </div>
 
     <div v-else class="space-y-3">
@@ -33,14 +33,14 @@
       >
         <div class="flex items-start justify-between">
           <div>
-            <p class="font-medium text-lg text-gray-900">Booking #{{ b.id.slice(0, 8) }}</p>
+            <p class="font-medium text-lg text-gray-900">Pemesanan #{{ b.id.slice(0, 8) }}</p>
             <p class="text-sm text-gray-500 mt-1">{{ formatDateTime(b.start_time) }} → {{ formatDateTime(b.end_time) }}</p>
           </div>
           <AppBadge :status="b.status" type="booking" />
         </div>
         <div class="mt-2 flex items-center justify-between">
           <span class="text-sm font-medium text-gray-900">{{ formatCurrency(b.total_price) }}</span>
-          <span class="text-xs text-gray-500">Upfront: {{ formatCurrency(b.upfront_fee) }}</span>
+          <span class="text-xs text-gray-500">DP: {{ formatCurrency(b.upfront_fee) }}</span>
         </div>
       </div>
     </div>
@@ -66,11 +66,11 @@ const bookings = ref<Booking[]>([])
 const activeStatus = ref('')
 
 const statusTabs = [
-  { value: '', label: 'All' },
-  { value: BookingStatus.PENDING_PAYMENT, label: 'Pending' },
-  { value: BookingStatus.CONFIRMED, label: 'Confirmed' },
-  { value: BookingStatus.ACTIVE, label: 'Active' },
-  { value: BookingStatus.COMPLETED, label: 'Completed' },
+  { value: '', label: 'Semua' },
+  { value: BookingStatus.PENDING_PAYMENT, label: 'Tertunda' },
+  { value: BookingStatus.CONFIRMED, label: 'Dikonfirmasi' },
+  { value: BookingStatus.ACTIVE, label: 'Aktif' },
+  { value: BookingStatus.COMPLETED, label: 'Selesai' },
 ]
 
 const filtered = computed(() =>
