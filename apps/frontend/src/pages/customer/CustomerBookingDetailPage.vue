@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <RouterLink :to="`/customer/${slug}/bookings`" class="text-sm text-gray-500 hover:text-gray-700">← My Bookings</RouterLink>
+    <RouterLink :to="`/customer/${slug}/bookings`" class="text-sm text-gray-500 hover:text-gray-700">← Customer Portal</RouterLink>
 
     <AppSpinner v-if="loading" class="mx-auto" size="lg" />
 

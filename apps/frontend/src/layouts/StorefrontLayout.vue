@@ -11,7 +11,12 @@
           />
           <h1 class="text-lg font-semibold text-gray-900">{{ storefrontStore.merchantName }}</h1>
         </div>
-        <RouterLink :to="`/store/${slug}`" class="text-sm text-primary-600 hover:underline">Home</RouterLink>
+        <div class="flex items-center gap-4">
+          <RouterLink
+            :to="`/customer/${slug}/login`"
+            class="text-sm font-medium px-3 py-1.5 rounded-md bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+          >Customer Portal</RouterLink>
+        </div>
       </div>
     </header>
     <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">

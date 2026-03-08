@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <h2 class="text-lg font-semibold text-gray-900">My Bookings</h2>
+    <h2 class="text-lg font-semibold text-gray-900">Customer Portal</h2>
 
     <div class="flex gap-2 flex-wrap">
       <button
@@ -33,7 +33,7 @@
       >
         <div class="flex items-start justify-between">
           <div>
-            <p class="font-medium text-gray-900">Booking #{{ b.id.slice(0, 8) }}</p>
+            <p class="font-medium text-lg text-gray-900">Booking #{{ b.id.slice(0, 8) }}</p>
             <p class="text-sm text-gray-500 mt-1">{{ formatDateTime(b.start_time) }} → {{ formatDateTime(b.end_time) }}</p>
           </div>
           <AppBadge :status="b.status" type="booking" />

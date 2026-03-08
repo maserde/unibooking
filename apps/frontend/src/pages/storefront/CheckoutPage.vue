@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto">
+  <div class="max-w-xl mx-auto">
     <RouterLink :to="`/store/${slug}`" class="text-sm text-gray-500 hover:text-gray-700">← Back to catalog</RouterLink>
 
     <h2 class="text-xl font-semibold text-gray-900 mt-4 mb-4">Book: {{ asset?.name }}</h2>
@@ -91,9 +91,9 @@
     <div v-else-if="step === 2" class="space-y-4">
       <AppCard title="Your information">
         <div class="space-y-4">
-          <AppInput v-model="customer.name" label="Full name" :error="customerErrors.name" />
-          <AppInput v-model="customer.email" label="Email" type="email" :error="customerErrors.email" />
-          <AppInput v-model="customer.phone" label="Phone number" type="tel" />
+          <AppInput v-model="customer.name" label="Full name" placeholder="e.g. John Doe" :error="customerErrors.name" />
+          <AppInput v-model="customer.email" label="Email" type="email" placeholder="e.g. john@example.com" :error="customerErrors.email" />
+          <AppInput v-model="customer.phone" label="Phone number" type="tel" placeholder="e.g. +62 812 3456 7890" />
         </div>
       </AppCard>
 

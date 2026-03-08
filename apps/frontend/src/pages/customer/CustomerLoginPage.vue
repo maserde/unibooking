@@ -1,19 +1,19 @@
 <template>
-  <div class="max-w-sm mx-auto py-16 px-4">
-    <div class="bg-white border border-gray-200 rounded-lg p-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-2">Track your booking</h2>
-      <p class="text-sm text-gray-500 mb-6">Enter your email to receive a magic link.</p>
+  <div class="min-h-[70vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-white border border-gray-200 rounded-2xl p-10 shadow-sm">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Track your booking</h2>
+      <p class="text-sm text-gray-500 mb-8">Enter your email to receive a magic link.</p>
 
-      <div v-if="sent" class="text-center py-4">
-        <div class="text-green-600 text-4xl mb-3">✉</div>
-        <h3 class="font-medium text-gray-900">Check your email</h3>
-        <p class="text-sm text-gray-500 mt-1">We sent a magic link to {{ form.email }}</p>
+      <div v-if="sent" class="text-center py-6">
+        <div class="text-green-600 text-5xl mb-4">✉</div>
+        <h3 class="text-lg font-semibold text-gray-900">Check your email</h3>
+        <p class="text-sm text-gray-500 mt-2">We sent a magic link to <span class="font-medium text-gray-700">{{ form.email }}</span></p>
       </div>
 
       <template v-else>
-        <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-4" />
-        <form class="space-y-4" @submit.prevent="requestLink">
-          <AppInput v-model="form.email" label="Email" type="email" :error="errors.email" />
+        <AppAlert v-if="errorMsg" type="error" :message="errorMsg" class="mb-5" />
+        <form class="space-y-5" @submit.prevent="requestLink">
+          <AppInput v-model="form.email" label="Email" type="email" placeholder="your@email.com" :error="errors.email" />
           <AppButton type="submit" class="w-full" :loading="loading">Send magic link</AppButton>
         </form>
       </template>
