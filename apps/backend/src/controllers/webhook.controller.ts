@@ -60,9 +60,12 @@ export const webhookController = {
         return;
       }
 
-      // 4. Mark payment as PAID and booking as CONFIRMED; store the real transaction ID
+      // 4. Mark payment as PAID; only advance to CONFIRMED if still pending — never
+      //    revert an already-active or completed booking when a remainder payment arrives.
       await paymentRepository.updateStatus(payment.id, 'PAID', mayarTransactionId);
-      await bookingRepository.updateStatus(booking.merchant_id, booking.id, 'CONFIRMED');
+      if (booking.status === 'PENDING_PAYMENT') {
+        await bookingRepository.updateStatus(booking.merchant_id, booking.id, 'CONFIRMED');
+      }
 
       // 5. Send confirmation email with real asset and merchant names
       const [detailed, customer, merchant] = await Promise.all([
