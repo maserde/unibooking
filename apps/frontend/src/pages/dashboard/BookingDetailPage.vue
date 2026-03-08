@@ -66,8 +66,14 @@
             <p class="text-sm text-gray-500 mb-3">
               Remaining: <span class="font-semibold text-gray-900">{{ formatCurrency(remainderAmount) }}</span>
             </p>
-            <AppButton size="sm" :loading="chargingRemainder" @click="chargeRemainder">
-              Generate Remainder Payment &amp; Notify Customer
+            <div v-if="cooldownRemaining > 0" class="flex items-center gap-2 mb-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Please wait <strong>{{ cooldownRemaining }}s</strong> before generating the payment link.</span>
+            </div>
+            <AppButton size="sm" :loading="chargingRemainder" :disabled="cooldownRemaining > 0" @click="chargeRemainder">
+              Generate Remainder Payment
             </AppButton>
             <AppAlert v-if="remainderError" type="error" :message="remainderError" class="mt-3" />
           </template>
@@ -100,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { bookingsApi } from '@/api/bookings'
 import { formatCurrency, formatDateTime } from '@/utils/format'
@@ -113,6 +119,8 @@ import AppButton from '@/components/ui/AppButton.vue'
 import AppAlert from '@/components/ui/AppAlert.vue'
 import AppSpinner from '@/components/ui/AppSpinner.vue'
 
+const COOLDOWN_MS = 60_000
+
 const route = useRoute()
 const loading = ref(true)
 const booking = ref<BookingDetailed | null>(null)
@@ -120,6 +128,46 @@ const updatingStatus = ref<BS | null>(null)
 const statusError = ref('')
 const chargingRemainder = ref(false)
 const remainderError = ref('')
+const cooldownRemaining = ref(0)
+
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
+
+function cooldownKey(id: string) {
+  return `remainder_cooldown_until_${id}`
+}
+
+function startCooldown(bookingId: string) {
+  const until = Date.now() + COOLDOWN_MS
+  localStorage.setItem(cooldownKey(bookingId), String(until))
+  tickCooldown(until)
+}
+
+function tickCooldown(until: number) {
+  if (cooldownTimer) clearInterval(cooldownTimer)
+  cooldownRemaining.value = Math.max(0, Math.ceil((until - Date.now()) / 1000))
+  if (cooldownRemaining.value <= 0) return
+  cooldownTimer = setInterval(() => {
+    const remaining = Math.ceil((until - Date.now()) / 1000)
+    if (remaining <= 0) {
+      cooldownRemaining.value = 0
+      clearInterval(cooldownTimer!)
+      cooldownTimer = null
+    } else {
+      cooldownRemaining.value = remaining
+    }
+  }, 500)
+}
+
+function restoreCooldown(bookingId: string) {
+  const stored = localStorage.getItem(cooldownKey(bookingId))
+  if (!stored) return
+  const until = Number(stored)
+  if (Date.now() >= until) {
+    localStorage.removeItem(cooldownKey(bookingId))
+    return
+  }
+  tickCooldown(until)
+}
 
 const remainderAmount = computed(() =>
   booking.value ? Math.max(0, booking.value.total_price - booking.value.upfront_fee) : 0,
@@ -175,6 +223,9 @@ async function updateStatus(status: BS) {
   try {
     const res = await bookingsApi.updateStatus(booking.value.id, status)
     booking.value = res.data.data
+    if (status === BookingStatus.ACTIVE) {
+      startCooldown(booking.value.id)
+    }
   } catch (e) {
     const err = e as { response?: { data?: { error?: string } } }
     statusError.value = err.response?.data?.error ?? 'Failed to update status'
@@ -187,8 +238,13 @@ onMounted(async () => {
   try {
     const res = await bookingsApi.get(route.params.id as string)
     booking.value = res.data.data
+    if (booking.value) restoreCooldown(booking.value.id)
   } finally {
     loading.value = false
   }
+})
+
+onUnmounted(() => {
+  if (cooldownTimer) clearInterval(cooldownTimer)
 })
 </script>
