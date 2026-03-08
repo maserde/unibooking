@@ -10,15 +10,29 @@
     </div>
 
     <!-- Asset image gallery -->
-    <div v-if="asset?.images?.length" class="flex gap-2 mb-6 rounded-xl overflow-hidden h-52">
-      <img
+    <div v-if="asset?.images?.length" class="mb-6">
+      <!-- Mobile: horizontal scroll -->
+      <div class="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1 sm:hidden">
+        <img
           v-for="(img, i) in asset.images"
           :key="img.id"
           :src="img.url"
           :alt="`${asset.name} photo ${i + 1}`"
-          class="flex-1 object-cover cursor-zoom-in hover:brightness-90 transition-[filter]"
+          class="w-72 flex-shrink-0 snap-start aspect-[4/3] object-cover rounded-xl cursor-zoom-in hover:brightness-90 transition-[filter]"
           @click="lightboxIndex = i"
-      />
+        />
+      </div>
+      <!-- Desktop: side by side, fixed height -->
+      <div class="hidden sm:flex gap-2 h-52 w-full overflow-hidden">
+        <img
+          v-for="(img, i) in asset.images"
+          :key="img.id"
+          :src="img.url"
+          :alt="`${asset.name} photo ${i + 1}`"
+          class="flex-1 min-w-0 h-full object-cover rounded-xl cursor-zoom-in hover:brightness-90 transition-[filter]"
+          @click="lightboxIndex = i"
+        />
+      </div>
     </div>
 
     <AppLightbox v-model="lightboxIndex" :images="lightboxImages" />
